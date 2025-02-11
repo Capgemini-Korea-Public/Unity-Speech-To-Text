@@ -1,26 +1,34 @@
 using UnityEngine;
 using OpenAI;
-using System;
 using NUnit.Framework;
 using System.IO;
 
-public class WhisperManager : MonoBehaviour
+public class WhisperManager : Singleton<WhisperManager>
 {
+    [field: Header("File Info")]
+    [field: SerializeField] public string FilePath { get; private set; }
+    [field: Header("Converted Text")]
+    [field: SerializeField] public string ConvertedText { get; private set; }
+
     private OpenAIApi openAI = new OpenAIApi();
+
+    public void SetFilePath(string filePath)
+    {
+        FilePath = filePath;
+        UIManager.Instance.UpdateFileName();
+    }
 
     public async void AskWhisper()
     {
-        string filePath = Environment.CurrentDirectory + "/Assets/Datas/hi.m4a";
-
-        if (!File.Exists(filePath))
+        if (!File.Exists(FilePath))
         {
-            Debug.LogError("File not Exist: " + filePath);
+            Debug.LogError("File not Exist: " + FilePath);
             return;
         }
 
         var req = new CreateAudioTranscriptionsRequest
         {
-            File = filePath,
+            File = FilePath,
             Model = "whisper-1",
             Language = "ko"
         };
@@ -28,6 +36,7 @@ public class WhisperManager : MonoBehaviour
         var res = await openAI.CreateAudioTranscription(req);
         Assert.NotNull(res);
 
-        Debug.Log(res.Text);
+        ConvertedText = res.Text;
+        UIManager.Instance.UpdateOutputText();
     }
 }
