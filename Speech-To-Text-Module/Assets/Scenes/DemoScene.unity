@@ -1175,6 +1175,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: AudioProcessor, Assembly-CSharp
+        m_MethodName: AudioProcess
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &506878321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1213,6 +1225,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 506878318}
   m_CullTransparentMesh: 1
+--- !u!1 &511176654
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 511176655}
+  - component: {fileID: 511176656}
+  m_Layer: 0
+  m_Name: SentisWhisperManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &511176655
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511176654}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &511176656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511176654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 022a1203c99cc4245b41ab8e7914210e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AudioDecoder1: {fileID: 5022602860645237092, guid: 2051d7d6a85be224d9b6ce05642a9bcb, type: 3}
+  AudioDecoder2: {fileID: 5022602860645237092, guid: 35d422181ffe25c44a045723a1e1f4cd, type: 3}
+  AudioEncoder: {fileID: 5022602860645237092, guid: ebe65df3b67401243986c8635fc4088f, type: 3}
+  LogMelSpectro: {fileID: 5022602860645237092, guid: b8340a5c6d6128e48b4f4da2706c495c, type: 3}
+  AudioClip: {fileID: 8300000, guid: 2c91d4ae84c735644a640eadedafab41, type: 3}
+  JsonFile: {fileID: 4900000, guid: 240791101b88576488fcfa10d6f5672a, type: 3}
+  outputString: 
 --- !u!1 &712386302
 GameObject:
   m_ObjectHideFlags: 0
@@ -1425,12 +1488,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948502905}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 20, y: 11, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1844827739}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &948502907
 BoxCollider:
@@ -1676,8 +1739,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 15, y: -15}
-  m_SizeDelta: {x: -30, y: -30}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -60, y: -60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1449930773
 MonoBehaviour:
@@ -1812,8 +1875,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 140, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 640, y: -80}
+  m_SizeDelta: {x: 700, y: 200}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1641942849
 MonoBehaviour:
@@ -1865,12 +1928,12 @@ MonoBehaviour:
   m_fontSize: 35
   m_fontSizeBase: 35
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 35
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -1939,12 +2002,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1834533223}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2009962376}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1834533225
 MonoBehaviour:
@@ -1955,11 +2018,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1834533223}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b46f42d1ca1cf44e90aa4b5303aa81e, type: 3}
+  m_Script: {fileID: 11500000, guid: e8a3321c1cbcff84ca469958cf0de665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   <FilePath>k__BackingField: 
-  <Output>k__BackingField: 
+  <ConvertedText>k__BackingField: 
 --- !u!1 &1844827738
 GameObject:
   m_ObjectHideFlags: 0
@@ -1988,8 +2051,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 948502906}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1888183804
@@ -2077,8 +2139,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1888183809}
-        m_TargetAssemblyTypeName: FileSelect, Assembly-CSharp
-        m_MethodName: Select
+        m_TargetAssemblyTypeName: FileSelector, Assembly-CSharp
+        m_MethodName: FileSelect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2166,9 +2228,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1834533224}
-  - {fileID: 2049805785}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2049805784
@@ -2201,7 +2261,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2009962376}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2049805786
 MonoBehaviour:
@@ -2363,7 +2423,11 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1844827739}
+  - {fileID: 948502906}
   - {fileID: 2009962376}
+  - {fileID: 1834533224}
+  - {fileID: 511176655}
+  - {fileID: 2049805785}
   - {fileID: 29654193}
   - {fileID: 304323474}
   - {fileID: 104249773}

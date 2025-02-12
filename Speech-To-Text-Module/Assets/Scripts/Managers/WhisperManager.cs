@@ -15,14 +15,20 @@ public class WhisperManager : Singleton<WhisperManager>
     public void SetFilePath(string filePath)
     {
         FilePath = filePath;
-        UIManager.Instance.UpdateFileName();
+        UIManager.Instance.UpdateFileName(FilePath);
     }
 
     public async void AskWhisper()
     {
         if (!File.Exists(FilePath))
         {
-            Debug.LogError("File not Exist: " + FilePath);
+            Debug.LogError("File Not Exist: " + FilePath);
+            return;
+        }
+
+        if(!IsValidAudioFormat(FilePath) )
+        {
+            Debug.LogError("Invalid File Extension: " + Path.GetExtension(FilePath));
             return;
         }
 
@@ -30,13 +36,24 @@ public class WhisperManager : Singleton<WhisperManager>
         {
             File = FilePath,
             Model = "whisper-1",
-            Language = "ko"
+            Language = "ko",
         };
 
         var res = await openAI.CreateAudioTranscription(req);
-        Assert.NotNull(res);
-
+        Assert.NotNull(res); // null 체크
+        
+        Debug.Log(res);
         ConvertedText = res.Text;
-        UIManager.Instance.UpdateOutputText();
+        UIManager.Instance.UpdateOutputText(ConvertedText);
     }
+
+    #region Audio Verification
+    private bool IsValidAudioFormat(string filePath)
+    {
+        string extension = Path.GetExtension(filePath);
+        Debug.Log("오디오 파일 형식 검증");
+        return ExtensionMethods.whisperExtensions.Contains(extension);
+    }
+
+    #endregion
 }

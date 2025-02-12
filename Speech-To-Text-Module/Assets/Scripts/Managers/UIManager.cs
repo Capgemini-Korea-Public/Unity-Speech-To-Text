@@ -8,15 +8,15 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private TextMeshProUGUI TXT_fileName;
     [SerializeField] private TextMeshProUGUI TXT_OutputText;
 
-    public void UpdateFileName()
+    public void UpdateFileName(string filePath)
     {
-        string fileName = Path.GetFileName(WhisperManager.Instance.FilePath);
+        string fileName = Path.GetFileName(filePath);
         TXT_fileName.text = fileName;
     }
 
-    public void UpdateOutputText()
+    public void UpdateOutputText(string convertedText)
     {
-        string output =WhisperManager.Instance.ConvertedText;
+        string output = convertedText;
         TXT_OutputText.text = output;
     }
 }
