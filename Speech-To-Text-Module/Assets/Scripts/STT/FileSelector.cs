@@ -10,7 +10,7 @@ public class FileSelector : MonoBehaviour
         string filePath = EditorUtility.OpenFilePanel("Select Audio File", "", "");
 
         if(!string.IsNullOrEmpty(filePath))
-            WhisperManager.Instance.SetFilePath(filePath);
+            STTManager.Instance.SetFilePath(filePath);
         else
             Debug.LogError("Invalid File");
     }
