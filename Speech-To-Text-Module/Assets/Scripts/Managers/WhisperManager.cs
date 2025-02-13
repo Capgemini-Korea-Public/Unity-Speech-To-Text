@@ -10,20 +10,20 @@ public class WhisperManager : Singleton<WhisperManager>
 
     public async UniTask AskWhisper()
     {
-        if (isConverting) return; // 중복 실행 방지
+        if (isConverting) return; // avoid duplicate execution 
         isConverting = true;
 
         var req = new CreateAudioTranscriptionsRequest
         {
             File = STTManager.Instance.FilePath,
-            Model = "whisper-1",
-            Language = "ko",
+            Model = "whisper-1", 
+            Language = "en", // target language
         };
 
         var res = await openAI.CreateAudioTranscription(req);
 
         isConverting = false;
-        Assert.NotNull(res); // null 체크
+        Assert.NotNull(res); //response null check
         
         Debug.Log(res);
         STTManager.Instance.SetConvertedText( res.Text);

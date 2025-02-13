@@ -25,7 +25,7 @@ public class SentisWhisperManager : MonoBehaviour
     Worker argmax;
 
     // 처리 할 최대 토큰 수
-    const int maxTokens = 100;
+    const int maxTokens = 1000;
 
     // 모델에서 사용할 토큰
     const int END_OF_TEXT = 50257; // 텍스트의 끝을 나타낼 토큰
@@ -76,6 +76,10 @@ public class SentisWhisperManager : MonoBehaviour
         var amax = Functional.ArgMax(input, -1, false);
         var selectTokenModel = graph.Compile(amax);
         argmax = new Worker(selectTokenModel, BackendType.GPUCompute);
+
+        SetupWhiteSpaceShifts();
+        // 토큰 load
+        GetTokens();
     }
 
     // 모델에서 사용할 토큰 불러오기
@@ -96,14 +100,12 @@ public class SentisWhisperManager : MonoBehaviour
         DisposeAll();
 
         outputString = "";
-        SetupWhiteSpaceShifts();
-        GetTokens();
 
         outputTokens = new NativeArray<int>(maxTokens, Allocator.Persistent);
 
         outputTokens[0] = START_OF_TRANSCRIPT;
         outputTokens[1] = ENGLISH;// GERMAN;//FRENCH;//
-        outputTokens[2] = TRANSLATE; //TRANSCRIBE; //
+        outputTokens[2] = TRANSCRIBE; // TRANSLATE; //
         //outputTokens[3] = NO_TIME_STAMPS;// START_TIME;//
         tokenCount = 3;
 

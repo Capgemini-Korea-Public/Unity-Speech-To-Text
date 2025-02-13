@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class UIManager : Singleton<UIManager>
 {
-    [ Header ("Text")]
+    [Header ("Text")]
     [SerializeField] private TextMeshProUGUI TXT_fileName;
     [SerializeField] private TextMeshProUGUI TXT_OutputText;
 

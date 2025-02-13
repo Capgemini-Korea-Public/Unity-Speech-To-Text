@@ -1306,7 +1306,7 @@ MonoBehaviour:
   AudioDecoder2: {fileID: 5022602860645237092, guid: 35d422181ffe25c44a045723a1e1f4cd, type: 3}
   AudioEncoder: {fileID: 5022602860645237092, guid: ebe65df3b67401243986c8635fc4088f, type: 3}
   LogMelSpectro: {fileID: 5022602860645237092, guid: b8340a5c6d6128e48b4f4da2706c495c, type: 3}
-  AudioClip: {fileID: 8300000, guid: 2c91d4ae84c735644a640eadedafab41, type: 3}
+  AudioClip: {fileID: 8300000, guid: f9c220273e632402bbc94e361bb93e6b, type: 3}
   JsonFile: {fileID: 4900000, guid: 240791101b88576488fcfa10d6f5672a, type: 3}
   outputString: 
 --- !u!1 &712386302

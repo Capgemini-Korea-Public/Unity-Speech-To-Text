@@ -3,10 +3,10 @@ using UnityEditor;
 
 public class FileSelector : MonoBehaviour
 {
-    // Directory에서 파일 선택
+    // file select in directory 
     public void FileSelect()
     {
-        // Title, Directory, File Type 순서
+        // Title, Directory, File Type 
         string filePath = EditorUtility.OpenFilePanel("Select Audio File", "", "");
 
         if(!string.IsNullOrEmpty(filePath))

@@ -14,21 +14,19 @@ public class Convertor : MonoBehaviour
     private async UniTask ConvertAudioToText()
     {
         string filePath = STTManager.Instance.FilePath;
-        // 파일 존재하는지 검사
+
         if (!File.Exists(filePath))
         {
             UnityEngine.Debug.LogError("File Not Exist: " + filePath);
             return;
         }
 
-        // 유효한 확장자인지 검사
         if (!IsValidAudioFormat(filePath))
         {
             UnityEngine.Debug.LogError("Invalid File Extension: " + Path.GetExtension(filePath));
             return;
         }
 
-        // .mp4파일이면 .wav파일로 변환
         if (Path.GetExtension(filePath) == ".mp4")
         {
             string wavFilePath = await ConvertToWav(filePath);
@@ -40,10 +38,10 @@ public class Convertor : MonoBehaviour
             {
                 UnityEngine.Debug.LogError("Fail Convert .mp4 File to .wav");
                 return;
-            }                
+            }
         }
 
-        // 노이즈 제거
+        // Remove Noise
         string noiseRemovedFilePath = await RemoveNoise(filePath);
         if (noiseRemovedFilePath != null)
         {
@@ -54,17 +52,14 @@ public class Convertor : MonoBehaviour
             UnityEngine.Debug.LogError("Fail to Remove Noise");
         }
 
-        // 길이가 길면 나누기
-
-
-        // Processed Audio를 Text로 변환
+        // Processed Audio Convert to Text
         await WhisperManager.Instance.AskWhisper();
     }
 
     #region Audio Verification
     private bool IsValidAudioFormat(string filePath)
     {
-        UnityEngine.Debug.Log("오디오 파일 형식 검증");
+        UnityEngine.Debug.Log("Audio Format Verification");
 
         string extension = Path.GetExtension(filePath);
         return ExtensionMethods.whisperExtensions.Contains(extension);
@@ -74,28 +69,31 @@ public class Convertor : MonoBehaviour
     #region Audio Processing
     private async UniTask<bool> ExecuteFFmpegProcess(string argument, string outputPath)
     {
-        // ffmpeg.exe 저장 위치
         string ffmpegPath = Path.Combine(Application.dataPath, "Plugins/ffmpeg/bin/ffmpeg.exe");
+        // mac os
+        if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer)
+        {
+            ffmpegPath = "/usr/local/bin/ffmpeg";  // Mac
+        }
 
-        // ProcessStartInfo 설정
+        // ProcessStartInfo
         ProcessStartInfo startInfo = new ProcessStartInfo()
         {
-            FileName = ffmpegPath, // 실행할 프로그램
-            Arguments = argument, // 전달할 인자
-            RedirectStandardOutput = true, // 외부 프로세스의 output c#으로 가져오기
-            RedirectStandardError = true, // 외부 프로세스의 오류 c#으로 가져오기
-            UseShellExecute = false, // 셸 사용 안하고 실행
-            CreateNoWindow = true // 창 없이 실행
+            FileName = ffmpegPath, // execute program
+            Arguments = argument, // argument
+            RedirectStandardOutput = true, // Capture the external process's output output in C#
+            RedirectStandardError = true, // Capture the external process's error output in C#
+            UseShellExecute = false, // Execute without using the shell
+            CreateNoWindow = true // Run without creating a window
         };
 
-        // ffmpeg 프로세스 시작
         Process process = new Process
         {
             StartInfo = startInfo
         };
 
         process.Start();
-        process.WaitForExit(); // 변환 완료될 때까지 대기
+        process.WaitForExit(); 
 
         if (File.Exists(outputPath))
         {
@@ -111,7 +109,7 @@ public class Convertor : MonoBehaviour
 
     private async UniTask<string> ConvertToWav(string filePath)
     {
-        UnityEngine.Debug.Log(".wav 파일로 변환");
+        UnityEngine.Debug.Log(".wav Converted");
 
         string directoryPath = Path.Combine(Application.dataPath, "AudioProcessings");
         string baseFileName = Path.GetFileNameWithoutExtension(filePath);
@@ -125,7 +123,7 @@ public class Convertor : MonoBehaviour
             count++;  
         }
 
-        // ffmpeg 명령어 (mp4 파일을 wav로 변환, whisper에서 권장하는 샘플레이트 16000, 모노채널 -ac 1)
+        // ffmpeg arguments, mp4 to wav, whisper - 16000 sr, mono -ac 1
         string arguments = $"-i \"{filePath}\" -vn -acodec pcm_s16le -ar 16000 -ac 1 \"{outputPath}\"";
 
         if (await ExecuteFFmpegProcess(arguments, outputPath))
@@ -136,7 +134,7 @@ public class Convertor : MonoBehaviour
 
     private async UniTask<string> RemoveNoise(string filePath)
     {
-        UnityEngine.Debug.Log("노이즈 제거");
+        UnityEngine.Debug.Log("Remove Noise");
 
         string directoryPath = Path.Combine(Application.dataPath, "AudioProcessings");
         string baseFileName = Path.GetFileNameWithoutExtension(filePath);
@@ -150,7 +148,7 @@ public class Convertor : MonoBehaviour
             count++;
         }
 
-        // ffmpeg 명령어 (noise 제거)
+        // ffmpeg arguments
         string arguments = $"-i \"{filePath}\" -vf noise=alls={denoiseIntensity}:allf=t \"{outputPath}\"";
 
         if (await ExecuteFFmpegProcess(arguments, outputPath))
