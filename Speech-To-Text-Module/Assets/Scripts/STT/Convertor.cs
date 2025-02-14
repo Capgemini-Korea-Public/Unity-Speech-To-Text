@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 
 public class Convertor : MonoBehaviour
 {
-    [SerializeField, Range(0,100)] private int denoiseIntensity = 30;
     public void Convert()
     {
         ConvertAudioToText();
@@ -53,7 +52,15 @@ public class Convertor : MonoBehaviour
         }
 
         // Processed Audio Convert to Text
-        await WhisperManager.Instance.AskWhisper();
+        switch (STTManager.Instance.STTModel)
+        {
+            case ESTTType.OpenAIWhisper:
+                await WhisperManager.Instance.AskWhisper();
+                break;
+            case ESTTType.SentisWhisper:
+                await SentisWhisperManager.Instance.AskSentisWhisper();
+                break ;
+        }
     }
 
     #region Audio Verification
@@ -148,8 +155,8 @@ public class Convertor : MonoBehaviour
             count++;
         }
 
-        // reduce noise
-        string arguments = $"-i \"{filePath}\" -af \"afftdn=nf=-25\"  \"{outputPath}\"";
+        // reduce noise & sample rate 16 & mono
+        string arguments = $"-i \"{filePath}\" -af \"afftdn=nf=-25\" -ar 16000 -ac 1  \"{outputPath}\"";
         
 
         if (await ExecuteFFmpegProcess(arguments, outputPath))

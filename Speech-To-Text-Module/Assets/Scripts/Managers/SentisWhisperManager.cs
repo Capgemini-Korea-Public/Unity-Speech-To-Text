@@ -2,21 +2,27 @@
 using UnityEngine;
 using Unity.Sentis;
 using System.Text;
-using Unity.Collections; 
+using Unity.Collections;
+using Cysharp.Threading.Tasks;
+using System.Collections;
+using UnityEngine.Networking;
+using System.IO;
+using OpenAI;
+using System.Threading.Tasks;
 
-public class SentisWhisperManager : MonoBehaviour
+public class SentisWhisperManager : Singleton<SentisWhisperManager>
 {
     [Header("Sentis 모델")]
-    public ModelAsset AudioDecoder1;
-    public ModelAsset AudioDecoder2;
-    public ModelAsset AudioEncoder;
-    public ModelAsset LogMelSpectro; // 음성 인식에 사용되는 모델
+    [SerializeField] private ModelAsset audioDecoder1;
+    [SerializeField] private ModelAsset audioDecoder2;
+    [SerializeField] private ModelAsset audioEncoder;
+    [SerializeField] private ModelAsset logMelSpectro; // 음성 인식에 사용되는 모델
 
     [Header("변환할 Audio File")]
-    public AudioClip AudioClip;
+    [SerializeField] private AudioClip audioClip;
 
     [Header("Tokenizer")]
-    public TextAsset JsonFile;
+    [SerializeField] private TextAsset jsonFile;
 
     [Header("Output")]
     [SerializeField] private string outputString = "";
@@ -52,23 +58,24 @@ public class SentisWhisperManager : MonoBehaviour
     Tensor<int> tokensTensor;
     Tensor<float> audioInput;
 
-    bool transcribe = false; 
+    private bool transcribe = false;
 
     // 오디오 최대 사이즈 지정 (30초 at 16kHz)
-    const int maxSamples = 30 * 16000;
+    private const int maxSamples = 30 * 16000;
 
     private void Start()
     {
         Init();
     }
 
-    void Init()
+    #region Init
+    private void Init()
     {
         // 모델 로드해서 Worker 객체에 할당 & GPU에서 모델을 실행
-        decoder1 = new Worker(ModelLoader.Load(AudioDecoder1), BackendType.GPUCompute);
-        decoder2 = new Worker(ModelLoader.Load(AudioDecoder2), BackendType.GPUCompute);
-        encoder = new Worker(ModelLoader.Load(AudioEncoder), BackendType.GPUCompute);
-        spectrogram = new Worker(ModelLoader.Load(LogMelSpectro), BackendType.GPUCompute);
+        decoder1 = new Worker(ModelLoader.Load(audioDecoder1), BackendType.GPUCompute);
+        decoder2 = new Worker(ModelLoader.Load(audioDecoder2), BackendType.GPUCompute);
+        encoder = new Worker(ModelLoader.Load(audioEncoder), BackendType.GPUCompute);
+        spectrogram = new Worker(ModelLoader.Load(logMelSpectro), BackendType.GPUCompute);
 
         // 모델의 계산 그래프
         FunctionalGraph graph = new FunctionalGraph();
@@ -83,35 +90,47 @@ public class SentisWhisperManager : MonoBehaviour
     }
 
     // 모델에서 사용할 토큰 불러오기
-    void GetTokens()
+    private void GetTokens()
     {
-        var vocab = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>(JsonFile.text);
+        var vocab = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonFile.text);
         tokens = new string[vocab.Count];
         foreach (var item in vocab)
         {
             tokens[item.Value] = item.Key;
         }
     }
+    // 공백문자 처리
+    private void SetupWhiteSpaceShifts()
+    {
+        for (int i = 0, n = 0; i < 256; i++)
+        {
+            if (IsWhiteSpace((char)i)) whiteSpaceCharacters[n++] = i;
+        }
+    }
 
-    [ContextMenu("Convert")]
-    async void ConvertAudioToText()
+    private bool IsWhiteSpace(char c)
+    {
+        return !(('!' <= c && c <= '~') || ('�' <= c && c <= '�') || ('�' <= c && c <= '�'));
+    }
+    #endregion
+
+    [ContextMenu("AskSentisWhisper")]
+    public async UniTask AskSentisWhisper()
     {
         if (transcribe) return; // 중복 실행 방지
         DisposeAll();
+        transcribe = true;
 
         outputString = "";
 
         outputTokens = new NativeArray<int>(maxTokens, Allocator.Persistent);
-
         outputTokens[0] = START_OF_TRANSCRIPT;
-        outputTokens[1] = ENGLISH;// GERMAN;//FRENCH;//
+        outputTokens[1] = ENGLISH;
         outputTokens[2] = TRANSCRIBE; // TRANSLATE; //
         //outputTokens[3] = NO_TIME_STAMPS;// START_TIME;//
         tokenCount = 3;
 
-        LoadAudio();
-        EncodeAudio();
-        transcribe = true;
+        await LoadAudio();
 
         tokensTensor = new Tensor<int>(new TensorShape(1, maxTokens));
         ComputeTensorData.Pin(tokensTensor);
@@ -135,17 +154,46 @@ public class SentisWhisperManager : MonoBehaviour
     }
 
     #region Audio
-    void LoadAudio()
+    private async UniTask LoadAudio()
     {
-        numSamples = AudioClip.samples;
+        //UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + STTManager.Instance.FilePath, AudioType.WAV);
+        //Debug.Log("file://" + STTManager.Instance.FilePath);
+        //var result =  www.SendWebRequest();
+        //while (!result.isDone) { await Task.Delay(100); }
+
+        //if (www.result == UnityWebRequest.Result.Success)
+        //{
+        //    audioClip = DownloadHandlerAudioClip.GetContent(www); // 오디오 클립 할당
+        //    Debug.Log("오디오 파일이 로드되었습니다.");
+        //}
+        //else
+        //{
+        //    Debug.LogError("오디오 로드 오류: " + www.error);
+        //}
+
+        if (audioClip != null)
+        {
+            Debug.Log("Successfully Audio Load ");
+            LoadAudioToTensor();
+            EncodeAudio();
+        }
+        else
+        {
+            Debug.LogError("Failed Audio Load ");
+        }
+    }
+
+    private void LoadAudioToTensor()
+    {
+        numSamples = audioClip.samples;
         var data = new float[maxSamples];
         numSamples = maxSamples;
-        AudioClip.GetData(data, 0);
+        audioClip.GetData(data, 0);
         audioInput = new Tensor<float>(new TensorShape(1, numSamples), data);
     }
 
     // Audio 모델에 입력할 수 있는 형태로 변환
-    void EncodeAudio()
+    private void EncodeAudio()
     {
         spectrogram.Schedule(audioInput);
         var logmel = spectrogram.PeekOutput() as Tensor<float>;
@@ -155,8 +203,8 @@ public class SentisWhisperManager : MonoBehaviour
 
     #endregion
 
-    #region 추론
-    async Awaitable InferenceStep()
+    #region  Inference
+    private async Awaitable InferenceStep()
     {
         decoder1.SetInput("input_ids", tokensTensor);
         decoder1.SetInput("encoder_hidden_states", encodedAudio);
@@ -221,15 +269,16 @@ public class SentisWhisperManager : MonoBehaviour
         {
             outputString += GetUnicodeText(tokens[index]);
         }
+        STTManager.Instance.SetConvertedText(outputString);
     }
 
-    string GetUnicodeText(string text)
+    private string GetUnicodeText(string text)
     {
         var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(ShiftCharacterDown(text));
         return Encoding.UTF8.GetString(bytes);
     }
 
-    string ShiftCharacterDown(string text)
+    private string ShiftCharacterDown(string text)
     {
         string outText = "";
         foreach (char letter in text)
@@ -242,21 +291,8 @@ public class SentisWhisperManager : MonoBehaviour
 
     #endregion
 
-    // 공백문자 처리
-    void SetupWhiteSpaceShifts()
-    {
-        for (int i = 0, n = 0; i < 256; i++)
-        {
-            if (IsWhiteSpace((char)i)) whiteSpaceCharacters[n++] = i;
-        }
-    }
-
-    bool IsWhiteSpace(char c)
-    {
-        return !(('!' <= c && c <= '~') || ('�' <= c && c <= '�') || ('�' <= c && c <= '�'));
-    }
-
-    void DisposeAll()
+    #region Dispose
+    private void DisposeAll()
     {
         if (outputTokens.IsCreated) 
             outputTokens.Dispose();
@@ -287,4 +323,5 @@ public class SentisWhisperManager : MonoBehaviour
         audioInput?.Dispose();
         DisposeAll();
     }
+    #endregion
 }

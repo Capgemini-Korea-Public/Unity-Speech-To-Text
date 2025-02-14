@@ -5,9 +5,13 @@ using Cysharp.Threading.Tasks;
 
 public class WhisperManager : Singleton<WhisperManager>
 {
+    [Header("Output")]
+    [SerializeField] private string outputString = "";
+
     private OpenAIApi openAI = new OpenAIApi();
     private bool isConverting = false;
 
+    [ContextMenu ("AskWhisper")]
     public async UniTask AskWhisper()
     {
         if (isConverting) return; // avoid duplicate execution 
@@ -26,6 +30,7 @@ public class WhisperManager : Singleton<WhisperManager>
         Assert.NotNull(res); //response null check
         
         Debug.Log(res);
+        outputString = res.Text;
         STTManager.Instance.SetConvertedText( res.Text);
     }
 }
