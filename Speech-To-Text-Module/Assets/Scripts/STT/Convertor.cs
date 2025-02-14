@@ -42,7 +42,7 @@ public class Convertor : MonoBehaviour
         }
 
         // Remove Noise
-        string noiseRemovedFilePath = await RemoveNoise(filePath);
+        string noiseRemovedFilePath = await ReduceNoise(filePath);
         if (noiseRemovedFilePath != null)
         {
             STTManager.Instance.SetFilePath(noiseRemovedFilePath);
@@ -132,9 +132,9 @@ public class Convertor : MonoBehaviour
             return null;
     }
 
-    private async UniTask<string> RemoveNoise(string filePath)
+    private async UniTask<string> ReduceNoise(string filePath)
     {
-        UnityEngine.Debug.Log("Remove Noise");
+        UnityEngine.Debug.Log("Reduce Noise");
 
         string directoryPath = Path.Combine(Application.dataPath, "AudioProcessings");
         string baseFileName = Path.GetFileNameWithoutExtension(filePath);
@@ -148,8 +148,9 @@ public class Convertor : MonoBehaviour
             count++;
         }
 
-        // ffmpeg arguments
-        string arguments = $"-i \"{filePath}\" -vf noise=alls={denoiseIntensity}:allf=t \"{outputPath}\"";
+        // reduce noise
+        string arguments = $"-i \"{filePath}\" -af \"afftdn=nf=-25\"  \"{outputPath}\"";
+        
 
         if (await ExecuteFFmpegProcess(arguments, outputPath))
             return outputPath;
