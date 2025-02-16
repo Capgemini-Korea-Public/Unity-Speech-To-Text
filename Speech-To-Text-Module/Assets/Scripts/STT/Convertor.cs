@@ -14,18 +14,21 @@ public class Convertor : MonoBehaviour
     {
         string filePath = STTManager.Instance.FilePath;
 
+        // check file exist in given path
         if (!File.Exists(filePath))
         {
             UnityEngine.Debug.LogError("File Not Exist: " + filePath);
             return;
         }
 
+        // check file format is supported by Whisper
         if (!IsValidAudioFormat(filePath))
         {
             UnityEngine.Debug.LogError("Invalid File Extension: " + Path.GetExtension(filePath));
             return;
         }
 
+        // if given file format is .mp4, convert file format
         if (Path.GetExtension(filePath) == ".mp4")
         {
             string wavFilePath = await ConvertToWav(filePath);

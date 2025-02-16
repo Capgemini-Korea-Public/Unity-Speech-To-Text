@@ -18,7 +18,6 @@ public class STTManager : Singleton<STTManager>
     public void SetFilePath(string filePath)
     {
         FilePath = filePath;
-        UIManager.Instance.UpdateFileName(Path.GetFileName(filePath));
     }
 
     public void SetConvertedText(string text)

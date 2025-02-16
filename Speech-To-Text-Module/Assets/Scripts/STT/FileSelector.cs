@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 public class FileSelector : MonoBehaviour
 {
@@ -9,9 +10,14 @@ public class FileSelector : MonoBehaviour
         // Title, Directory, File Type 
         string filePath = EditorUtility.OpenFilePanel("Select Audio File", "", "");
 
-        if(!string.IsNullOrEmpty(filePath))
+        if (!string.IsNullOrEmpty(filePath))
+        {
             STTManager.Instance.SetFilePath(filePath);
+            UIManager.Instance.UpdateFileName(Path.GetFileName(filePath));
+        }
         else
+        {
             Debug.LogError("Invalid File");
+        }         
     }
 }

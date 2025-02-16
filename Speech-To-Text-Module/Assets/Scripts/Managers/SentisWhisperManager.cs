@@ -4,11 +4,7 @@ using Unity.Sentis;
 using System.Text;
 using Unity.Collections;
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using UnityEngine.Networking;
-using System.IO;
-using OpenAI;
-using System.Threading.Tasks;
 
 public class SentisWhisperManager : Singleton<SentisWhisperManager>
 {
@@ -146,6 +142,7 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
             if (!transcribe || tokenCount >= (outputTokens.Length - 1))
             {
                 Debug.Log(outputString);
+                ExtensionMethods.RemoveProcessedAudioFile();
                 return;
             }
             m_Awaitable = InferenceStep();
@@ -156,30 +153,24 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
     #region Audio
     private async UniTask LoadAudio()
     {
-        //UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip("file://" + STTManager.Instance.FilePath, AudioType.WAV);
-        //Debug.Log("file://" + STTManager.Instance.FilePath);
-        //var result =  www.SendWebRequest();
-        //while (!result.isDone) { await Task.Delay(100); }
+        string filePath = "file://" + STTManager.Instance.FilePath;
+        // Debug.Log(filePath);
 
-        //if (www.result == UnityWebRequest.Result.Success)
-        //{
-        //    audioClip = DownloadHandlerAudioClip.GetContent(www); // 오디오 클립 할당
-        //    Debug.Log("오디오 파일이 로드되었습니다.");
-        //}
-        //else
-        //{
-        //    Debug.LogError("오디오 로드 오류: " + www.error);
-        //}
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(filePath, AudioType.WAV))
+        {
+            await www.SendWebRequest();
 
-        if (audioClip != null)
-        {
-            Debug.Log("Successfully Audio Load ");
-            LoadAudioToTensor();
-            EncodeAudio();
-        }
-        else
-        {
-            Debug.LogError("Failed Audio Load ");
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                audioClip = DownloadHandlerAudioClip.GetContent(www);
+                Debug.Log("Successfully Audio Load ");
+                LoadAudioToTensor();
+                EncodeAudio();
+            }
+            else
+            {
+                Debug.LogError("Failed Audio Load: " + www.error);
+            }
         }
     }
 

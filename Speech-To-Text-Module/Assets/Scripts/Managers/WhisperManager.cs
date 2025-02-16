@@ -32,5 +32,7 @@ public class WhisperManager : Singleton<WhisperManager>
         Debug.Log(res);
         outputString = res.Text;
         STTManager.Instance.SetConvertedText( res.Text);
+
+        ExtensionMethods.RemoveProcessedAudioFile();
     }
 }

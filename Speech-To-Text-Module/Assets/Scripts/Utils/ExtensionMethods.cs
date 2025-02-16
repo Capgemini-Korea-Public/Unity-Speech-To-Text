@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public static class ExtensionMethods
@@ -10,9 +11,21 @@ public static class ExtensionMethods
         ".mp3", ".mp4", ".mpeg", ".mpga", ".m4a", ".wav", ".webm", ".flac",  ".oga", ".ogg"
     };
 
-    private static async UniTask UnloadUnusedResourcesAsync()
+    public static void RemoveProcessedAudioFile()
     {
-        await Resources.UnloadUnusedAssets();
-        Debug.Log("Unused resources have been unloaded.");
+        string folderPath = Path.Combine(Application.dataPath, "AudioProcessings");
+
+        if (Directory.Exists(folderPath))
+        {
+            foreach (string file in Directory.GetFiles(folderPath))
+            {
+                File.Delete(file);
+            }
+            Debug.Log("All files in 'AudioProcessings' have been deleted.");
+        }
+        else
+        {
+            Debug.LogWarning("'AudioProcessings' folder does not exist.");
+        }
     }
 }
