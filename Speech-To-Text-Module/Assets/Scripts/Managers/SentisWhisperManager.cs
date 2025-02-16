@@ -5,6 +5,7 @@ using System.Text;
 using Unity.Collections;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Networking;
+using System.IO;
 
 public class SentisWhisperManager : Singleton<SentisWhisperManager>
 {
@@ -154,9 +155,16 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
     private async UniTask LoadAudio()
     {
         string filePath = "file://" + STTManager.Instance.FilePath;
-        // Debug.Log(filePath);
+        string fileExtension = Path.GetExtension(filePath).ToLower();
 
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(filePath, AudioType.WAV))
+        AudioType audioType = GetAudioType(fileExtension);
+        if (audioType == AudioType.UNKNOWN)
+        {
+            Debug.LogError("Unsupported AudioType: " + fileExtension);
+            return;
+        }
+
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(filePath, audioType))
         {
             await www.SendWebRequest();
 
@@ -190,6 +198,22 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
         var logmel = spectrogram.PeekOutput() as Tensor<float>;
         encoder.Schedule(logmel);
         encodedAudio = encoder.PeekOutput() as Tensor<float>;
+    }
+
+    private AudioType GetAudioType(string extension)
+    {
+        switch (extension)
+        {
+            case ".mp3":
+            case ".mpeg":
+                return AudioType.MPEG;
+            case ".wav":
+                return AudioType.WAV;
+            case ".ogg":
+                return AudioType.OGGVORBIS;
+            default:
+                return AudioType.UNKNOWN; 
+        }
     }
 
     #endregion
@@ -285,21 +309,28 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
     #region Dispose
     private void DisposeAll()
     {
-        if (outputTokens.IsCreated) 
-            outputTokens.Dispose();
-        if (lastToken.IsCreated) 
-            lastToken.Dispose();
-        
-        if (tokensTensor != null)
+        audioInput?.Dispose();
+        encodedAudio?.Dispose();
+
+        DisposeToken(outputTokens);
+        DisposeToken(lastToken);
+
+        DisposeTensor(ref tokensTensor);
+        DisposeTensor(ref lastTokenTensor);
+    }
+
+    private void DisposeToken(NativeArray<int> tokens)
+    {
+        if (tokens.IsCreated)
+            tokens.Dispose();
+    }
+
+    private void DisposeTensor(ref Tensor<int> tensor)
+    {
+        if (tensor != null)
         {
-            tokensTensor.Dispose();
-            tokensTensor = null;
-        }
-      
-        if (lastTokenTensor != null)
-        {
-            lastTokenTensor.Dispose();
-            lastTokenTensor = null;
+            tensor.Dispose();
+            tensor = null;
         }
     }
 
@@ -311,7 +342,6 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
         spectrogram?.Dispose();
         argmax?.Dispose();
 
-        audioInput?.Dispose();
         DisposeAll();
     }
     #endregion
