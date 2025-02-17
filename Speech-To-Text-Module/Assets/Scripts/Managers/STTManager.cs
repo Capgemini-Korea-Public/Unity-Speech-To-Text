@@ -1,4 +1,3 @@
-using System.IO;
 using UnityEngine;
 
 public class STTManager : Singleton<STTManager>
@@ -9,6 +8,9 @@ public class STTManager : Singleton<STTManager>
     [field: SerializeField] public string ConvertedText { get; private set; }
     [field: Header("Selected Model")]
     [field: SerializeField] public ESTTType STTModel { get; private set; }
+
+    [field: SerializeField] public bool IsTranscribe = false;
+    [field: SerializeField, Range(0f, 30)] public int MaximumAudioLength = 10;
 
     public void SetModelType(ESTTType sttModel)
     {
@@ -22,7 +24,17 @@ public class STTManager : Singleton<STTManager>
 
     public void SetConvertedText(string text)
     {
-        ConvertedText = text;
-        UIManager.Instance.UpdateOutputText(ConvertedText);
+        ConvertedText = text;        
     }
+
+    public void SetTranscribeStatus(bool isTranscribe)
+    {
+        IsTranscribe = isTranscribe;
+    }
+
+    public bool IsTranscribing()
+    {
+        return IsTranscribe;
+    }
+
 }

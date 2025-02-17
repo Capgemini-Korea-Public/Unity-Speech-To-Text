@@ -4,8 +4,6 @@ using Unity.Sentis;
 using System.Text;
 using Unity.Collections;
 using Cysharp.Threading.Tasks;
-using UnityEngine.Networking;
-using System.IO;
 
 public class SentisWhisperManager : Singleton<SentisWhisperManager>
 {
@@ -54,8 +52,6 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
     Tensor<int> lastTokenTensor;
     Tensor<int> tokensTensor;
     Tensor<float> audioInput;
-
-    private bool transcribe = false;
 
     // 오디오 최대 사이즈 지정 (30초 at 16kHz)
     private const int maxSamples = 30 * 16000;
@@ -112,11 +108,11 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
     #endregion
 
     [ContextMenu("AskSentisWhisper")]
-    public async UniTask AskSentisWhisper()
+    public async UniTask<string> AskSentisWhisper(AudioClip audioClip)
     {
-        if (transcribe) return; // 중복 실행 방지
+        if (STTManager.Instance.IsTranscribing()) return null; // 중복 실행 방지
         DisposeAll();
-        transcribe = true;
+        STTManager.Instance.SetTranscribeStatus(true);
 
         outputString = "";
 
@@ -127,7 +123,9 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
         //outputTokens[3] = NO_TIME_STAMPS;// START_TIME;//
         tokenCount = 3;
 
-        await LoadAudio();
+        this.audioClip = audioClip;
+        LoadAudioToTensor();
+        EncodeAudio();
 
         tokensTensor = new Tensor<int>(new TensorShape(1, maxTokens));
         ComputeTensorData.Pin(tokensTensor);
@@ -140,11 +138,12 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
         // 토큰의 개수가 최대에 달할 때 까지 음성 인식 작업 지속
         while (true)
         {
-            if (!transcribe || tokenCount >= (outputTokens.Length - 1))
+            if (!STTManager.Instance.IsTranscribing() || tokenCount >= (outputTokens.Length - 1))
             {
                 Debug.Log(outputString);
                 ExtensionMethods.RemoveProcessedAudioFile();
-                return;
+                STTManager.Instance.SetConvertedText(outputString);
+                return outputString;
             }
             m_Awaitable = InferenceStep();
             await m_Awaitable;
@@ -152,36 +151,6 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
     }
 
     #region Audio
-    private async UniTask LoadAudio()
-    {
-        string filePath = "file://" + STTManager.Instance.FilePath;
-        string fileExtension = Path.GetExtension(filePath).ToLower();
-
-        AudioType audioType = GetAudioType(fileExtension);
-        if (audioType == AudioType.UNKNOWN)
-        {
-            Debug.LogError("Unsupported AudioType: " + fileExtension);
-            return;
-        }
-
-        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(filePath, audioType))
-        {
-            await www.SendWebRequest();
-
-            if (www.result == UnityWebRequest.Result.Success)
-            {
-                audioClip = DownloadHandlerAudioClip.GetContent(www);
-                Debug.Log("Successfully Audio Load ");
-                LoadAudioToTensor();
-                EncodeAudio();
-            }
-            else
-            {
-                Debug.LogError("Failed Audio Load: " + www.error);
-            }
-        }
-    }
-
     private void LoadAudioToTensor()
     {
         numSamples = audioClip.samples;
@@ -198,22 +167,6 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
         var logmel = spectrogram.PeekOutput() as Tensor<float>;
         encoder.Schedule(logmel);
         encodedAudio = encoder.PeekOutput() as Tensor<float>;
-    }
-
-    private AudioType GetAudioType(string extension)
-    {
-        switch (extension)
-        {
-            case ".mp3":
-            case ".mpeg":
-                return AudioType.MPEG;
-            case ".wav":
-                return AudioType.WAV;
-            case ".ogg":
-                return AudioType.OGGVORBIS;
-            default:
-                return AudioType.UNKNOWN; 
-        }
     }
 
     #endregion
@@ -278,13 +231,12 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
 
         if (index == END_OF_TEXT)
         {
-            transcribe = false;
+            STTManager.Instance.SetTranscribeStatus(false);
         }
         else if (index < tokens.Length)
         {
             outputString += GetUnicodeText(tokens[index]);
-        }
-        STTManager.Instance.SetConvertedText(outputString);
+        }   
     }
 
     private string GetUnicodeText(string text)

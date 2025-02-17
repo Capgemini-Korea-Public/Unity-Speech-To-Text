@@ -1,5 +1,6 @@
 using UnityEngine;
 using OpenAI;
+using System.IO;
 using NUnit.Framework;
 using Cysharp.Threading.Tasks;
 
@@ -9,30 +10,31 @@ public class WhisperManager : Singleton<WhisperManager>
     [SerializeField] private string outputString = "";
 
     private OpenAIApi openAI = new OpenAIApi();
-    private bool isConverting = false;
 
     [ContextMenu ("AskWhisper")]
-    public async UniTask AskWhisper()
+    public async UniTask<string> AskWhisper(AudioClip audioClip)
     {
-        if (isConverting) return; // avoid duplicate execution 
-        isConverting = true;
+        if (STTManager.Instance.IsTranscribing()) return null; // avoid duplicate execution 
+        STTManager.Instance.SetTranscribeStatus(true);
 
+        string filePath = Path.Combine(Application.dataPath, "AudioProcessings", audioClip.name);
         var req = new CreateAudioTranscriptionsRequest
         {
-            File = STTManager.Instance.FilePath,
+            File = filePath,
             Model = "whisper-1", 
             Language = "en", // target language
         };
 
         var res = await openAI.CreateAudioTranscription(req);
 
-        isConverting = false;
+        STTManager.Instance.SetTranscribeStatus(false);
         Assert.NotNull(res); //response null check
         
         Debug.Log(res);
         outputString = res.Text;
-        STTManager.Instance.SetConvertedText( res.Text);
 
         ExtensionMethods.RemoveProcessedAudioFile();
+        STTManager.Instance.SetConvertedText(outputString);
+        return outputString;
     }
 }

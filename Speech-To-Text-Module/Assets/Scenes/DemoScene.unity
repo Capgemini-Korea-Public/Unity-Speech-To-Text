@@ -1624,12 +1624,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 022a1203c99cc4245b41ab8e7914210e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioDecoder1: {fileID: 5022602860645237092, guid: 7ba6a6f1732f99947a01515050933e17, type: 3}
-  audioDecoder2: {fileID: 5022602860645237092, guid: 624abb45917446244aafc68d8666884d, type: 3}
-  audioEncoder: {fileID: 5022602860645237092, guid: 3e61d0582ab3055458aa9259802beba7, type: 3}
-  logMelSpectro: {fileID: 5022602860645237092, guid: bb98b320c7e1fc0479990e828c462595, type: 3}
+  audioDecoder1: {fileID: 5022602860645237092, guid: 2051d7d6a85be224d9b6ce05642a9bcb, type: 3}
+  audioDecoder2: {fileID: 5022602860645237092, guid: 35d422181ffe25c44a045723a1e1f4cd, type: 3}
+  audioEncoder: {fileID: 5022602860645237092, guid: ebe65df3b67401243986c8635fc4088f, type: 3}
+  logMelSpectro: {fileID: 5022602860645237092, guid: b8340a5c6d6128e48b4f4da2706c495c, type: 3}
   audioClip: {fileID: 0}
-  jsonFile: {fileID: 4900000, guid: c551cd9b2aa8ea042a41bdb6f0bd1d19, type: 3}
+  jsonFile: {fileID: 4900000, guid: 240791101b88576488fcfa10d6f5672a, type: 3}
   outputString: 
 --- !u!1 &687051068
 GameObject:
@@ -2207,7 +2207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <FilePath>k__BackingField: 
   <ConvertedText>k__BackingField: 
-  <STTModel>k__BackingField: 0
+  <STTModel>k__BackingField: 1
 --- !u!1 &948502905
 GameObject:
   m_ObjectHideFlags: 0

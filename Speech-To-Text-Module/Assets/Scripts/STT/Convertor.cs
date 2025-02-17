@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Networking;
 
 public class Convertor : MonoBehaviour
 {
@@ -54,16 +56,28 @@ public class Convertor : MonoBehaviour
             UnityEngine.Debug.LogError("Fail to Remove Noise");
         }
 
-        // Processed Audio Convert to Text
-        switch (STTManager.Instance.STTModel)
-        {
-            case ESTTType.OpenAIWhisper:
-                await WhisperManager.Instance.AskWhisper();
-                break;
-            case ESTTType.SentisWhisper:
-                await SentisWhisperManager.Instance.AskSentisWhisper();
-                break ;
-        }
+        // check audio input length over 30 seconds
+        AudioClip curAudioInput = await LoadAudio();
+        string outputString = "";
+
+        //if (IsAudioOverMaximumSeconds(curAudioInput))
+        //{
+        //    UnityEngine.Debug.Log("Audio Length Over 30 seconds");
+        //    List<AudioClip> audioClips = new List<AudioClip>();
+        //    SplitAudio(curAudioInput, audioClips);
+
+        //    foreach(var audioClip in audioClips)
+        //    {
+        //        outputString += await ConvertByModel(audioClip);
+        //    }
+        //}
+        //else
+        //{
+        //    outputString += await ConvertByModel(curAudioInput);
+        //}
+
+        outputString += await ConvertByModel(curAudioInput);
+        UIManager.Instance.UpdateOutputText(outputString);
     }
 
     #region Audio Verification
@@ -73,6 +87,16 @@ public class Convertor : MonoBehaviour
 
         string extension = Path.GetExtension(filePath);
         return ExtensionMethods.whisperExtensions.Contains(extension);
+    }
+
+    private bool IsAudioOverMaximumSeconds(AudioClip audioClip)
+    {
+        UnityEngine.Debug.Log("Check Audio Length");
+
+        if (audioClip.length > STTManager.Instance.MaximumAudioLength)
+            return true;
+        else
+            return false;
     }
     #endregion
 
@@ -168,5 +192,97 @@ public class Convertor : MonoBehaviour
             return null;
     }
 
+    private void SplitAudio(AudioClip audioClip, List<AudioClip> audioClips)
+    {        
+        float audioLength = audioClip.length;
+        float splitDuration = STTManager.Instance.MaximumAudioLength;
+        float curTime = 0f;
+
+        while (Mathf.Abs(audioLength - curTime) >= splitDuration) // while remain audio data over 30 seconds
+        {
+            float endTime = Mathf.Min(curTime + splitDuration, audioLength);
+            audioClips.Add(CutAudioClip(audioClip, curTime, endTime));
+            curTime = endTime;
+        }
+    }
+
+    private AudioClip CutAudioClip(AudioClip clip, float startTime, float endTime)
+    {
+        int startSample = Mathf.FloorToInt(startTime * clip.frequency);
+        int endSample = Mathf.FloorToInt(endTime * clip.frequency);
+
+        int newClipLength = Mathf.Min(endSample - startSample, STTManager.Instance.MaximumAudioLength);
+            
+        float[] samples = new float[newClipLength];
+        clip.GetData(samples, startSample);
+
+        AudioClip newClip = AudioClip.Create("newClip", newClipLength, clip.samples, clip.frequency, false);
+        newClip.SetData(samples, 0);
+
+        return newClip;
+    }
+
+    public async UniTask<AudioClip> LoadAudio()
+    {
+        string filePath = "file://" + STTManager.Instance.FilePath;
+        string fileExtension = Path.GetExtension(filePath).ToLower();
+
+        AudioType audioType = GetAudioType(fileExtension);
+        if (audioType == AudioType.UNKNOWN)
+        {
+            UnityEngine.Debug.LogError("Unsupported AudioType: " + fileExtension);
+            return null;
+        }
+
+        using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(filePath, audioType))
+        {
+            await www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                UnityEngine.Debug.Log("Successfully Audio Load ");
+                AudioClip audioClip = DownloadHandlerAudioClip.GetContent(www);
+                audioClip.name = Path.GetFileName(filePath);
+                return audioClip;
+            }
+            else
+            {
+                UnityEngine.Debug.LogError("Failed Audio Load: " + www.error);
+                return null;
+            }
+        }
+    }
+
+    private AudioType GetAudioType(string extension)
+    {
+        switch (extension)
+        {
+            case ".mp3":
+            case ".mpeg":
+                return AudioType.MPEG;
+            case ".wav":
+                return AudioType.WAV;
+            case ".ogg":
+                return AudioType.OGGVORBIS;
+            default:
+                return AudioType.UNKNOWN;
+        }
+    }
+    #endregion
+
+    #region Convert
+    private async UniTask<string> ConvertByModel(AudioClip audioClip)
+    {
+        // Processed Audio Convert to Text
+        switch (STTManager.Instance.STTModel)
+        {
+            case ESTTType.OpenAIWhisper:
+                return await WhisperManager.Instance.AskWhisper(audioClip);
+            case ESTTType.SentisWhisper:
+                return await SentisWhisperManager.Instance.AskSentisWhisper(audioClip);
+            default:
+                return null;
+        }
+    }
     #endregion
 }
