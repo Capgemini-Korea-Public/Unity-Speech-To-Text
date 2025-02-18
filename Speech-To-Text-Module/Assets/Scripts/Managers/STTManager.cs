@@ -10,7 +10,7 @@ public class STTManager : Singleton<STTManager>
     [field: SerializeField] public ESTTType STTModel { get; private set; }
 
     [field: SerializeField] public bool IsTranscribe = false;
-    [field: SerializeField, Range(0f, 30)] public int MaximumAudioLength = 10;
+    [field: SerializeField, Range(10f, 30)] public int MaximumAudioLength = 20;
 
     public void SetModelType(ESTTType sttModel)
     {

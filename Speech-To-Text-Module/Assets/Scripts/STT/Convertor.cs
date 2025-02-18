@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using System.IO;
-using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Networking;
 
 public class Convertor : MonoBehaviour
 {
+    private string outputString;
+
     public void Convert()
     {
         ConvertAudioToText();
@@ -14,6 +15,7 @@ public class Convertor : MonoBehaviour
 
     private async UniTask ConvertAudioToText()
     {
+        outputString = "";
         string filePath = STTManager.Instance.FilePath;
 
         // check file exist in given path
@@ -45,38 +47,36 @@ public class Convertor : MonoBehaviour
             }
         }
 
-        // Remove Noise
-        string noiseRemovedFilePath = await ReduceNoise(filePath);
-        if (noiseRemovedFilePath != null)
+        // Remove Noise, Convert sample rate to 16kHz, Change to mono channel
+        string processedFilePath = await AudioProcessing(filePath);
+        if (processedFilePath != null)
         {
-            STTManager.Instance.SetFilePath(noiseRemovedFilePath);
+            STTManager.Instance.SetFilePath(processedFilePath);
         }
         else
         {
-            UnityEngine.Debug.LogError("Fail to Remove Noise");
+            UnityEngine.Debug.LogError("Fail to processing Audio");
         }
 
-        // check audio input length over 30 seconds
         AudioClip curAudioInput = await LoadAudio();
-        string outputString = "";
 
-        //if (IsAudioOverMaximumSeconds(curAudioInput))
-        //{
-        //    UnityEngine.Debug.Log("Audio Length Over 30 seconds");
-        //    List<AudioClip> audioClips = new List<AudioClip>();
-        //    SplitAudio(curAudioInput, audioClips);
+        // check audio input length over maximum seconds
+        if (IsAudioOverMaximumSeconds(curAudioInput))
+        {
+            UnityEngine.Debug.Log("Audio length over maximum seconds");
+           // List<AudioClip> audioClips = new List<AudioClip>();
+            await SplitAudio(curAudioInput);
 
-        //    foreach(var audioClip in audioClips)
-        //    {
-        //        outputString += await ConvertByModel(audioClip);
-        //    }
-        //}
-        //else
-        //{
-        //    outputString += await ConvertByModel(curAudioInput);
-        //}
+            //foreach (var audioClip in audioClips)
+            //{
+            //    outputString += await ConvertByModel(audioClip);
+            //}
+        }
+        else
+        {
+            outputString += await ConvertByModel(curAudioInput);
+        }
 
-        outputString += await ConvertByModel(curAudioInput);
         UIManager.Instance.UpdateOutputText(outputString);
     }
 
@@ -100,7 +100,7 @@ public class Convertor : MonoBehaviour
     }
     #endregion
 
-    #region Audio Processing
+    #region FFmpeg Process
     private async UniTask<bool> ExecuteFFmpegProcess(string argument, string outputPath)
     {
         string ffmpegPath = Path.Combine(Application.dataPath, "Plugins/ffmpeg/bin/ffmpeg.exe");
@@ -140,7 +140,9 @@ public class Convertor : MonoBehaviour
             return false;
         }
     }
+    #endregion
 
+    #region Audio Processing
     private async UniTask<string> ConvertToWav(string filePath)
     {
         UnityEngine.Debug.Log(".wav Converted");
@@ -166,7 +168,7 @@ public class Convertor : MonoBehaviour
             return null;
     }
 
-    private async UniTask<string> ReduceNoise(string filePath)
+    private async UniTask<string> AudioProcessing(string filePath)
     {
         UnityEngine.Debug.Log("Reduce Noise");
 
@@ -192,34 +194,90 @@ public class Convertor : MonoBehaviour
             return null;
     }
 
-    private void SplitAudio(AudioClip audioClip, List<AudioClip> audioClips)
+    private async UniTask SplitAudio(AudioClip audioClip)
     {        
         float audioLength = audioClip.length;
         float splitDuration = STTManager.Instance.MaximumAudioLength;
         float curTime = 0f;
+        int index = 0;
 
-        while (Mathf.Abs(audioLength - curTime) >= splitDuration) // while remain audio data over 30 seconds
+        while (curTime < audioLength)
         {
             float endTime = Mathf.Min(curTime + splitDuration, audioLength);
-            audioClips.Add(CutAudioClip(audioClip, curTime, endTime));
+            outputString += await ConvertByModel(CutAudioClip(audioClip, curTime, endTime, index)); 
             curTime = endTime;
+            index++;
         }
     }
 
-    private AudioClip CutAudioClip(AudioClip clip, float startTime, float endTime)
+    private AudioClip CutAudioClip(AudioClip clip, float startTime, float endTime, int index)
     {
         int startSample = Mathf.FloorToInt(startTime * clip.frequency);
         int endSample = Mathf.FloorToInt(endTime * clip.frequency);
 
-        int newClipLength = Mathf.Min(endSample - startSample, STTManager.Instance.MaximumAudioLength);
-            
-        float[] samples = new float[newClipLength];
+        int newClipLength = Mathf.Min(endSample - startSample, clip.samples - startSample);
+        if (newClipLength <= 0) return null;
+
+        float[] samples = new float[newClipLength * clip.channels];
         clip.GetData(samples, startSample);
 
-        AudioClip newClip = AudioClip.Create("newClip", newClipLength, clip.samples, clip.frequency, false);
+        AudioClip newClip = AudioClip.Create(clip.name, newClipLength, clip.channels, clip.frequency, false);
         newClip.SetData(samples, 0);
 
+        UnityEngine.Debug.Log($"New Clip: {startTime} ~ {endTime}, Length: {newClip.length}, Name: {newClip.name} ");
+
+        string outputPath = Path.Combine(Application.dataPath, "AudioProcessings", newClip.name);
+        SaveAudioClip(newClip, outputPath);
+
         return newClip;
+    }
+
+    private void SaveAudioClip(AudioClip clip, string path)
+    {
+        float[] samples = new float[clip.samples * clip.channels];
+        clip.GetData(samples, 0);
+
+        byte[] byteArray = ConvertAudioClipToWav(clip, samples);
+
+        File.WriteAllBytes(path, byteArray);
+        UnityEngine.Debug.Log($"AudioClip save in this path : {path}");
+    }
+
+    // AudioClip -> .wav 
+    private byte[] ConvertAudioClipToWav(AudioClip clip, float[] samples)
+    {
+        using (MemoryStream stream = new MemoryStream())
+        {
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                int sampleRate = clip.frequency;
+                int channels = clip.channels;
+                int sampleCount = samples.Length;
+
+                // .wav header
+                writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+                writer.Write(36 + sampleCount * 2);
+                writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
+                writer.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
+                writer.Write(16);
+                writer.Write((ushort)1);
+                writer.Write((ushort)channels);
+                writer.Write(sampleRate);
+                writer.Write(sampleRate * channels * 2);
+                writer.Write((ushort)(channels * 2));
+                writer.Write((ushort)16);
+                writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+                writer.Write(sampleCount * 2);
+
+                foreach (float sample in samples)
+                {
+                    short intSample = (short)(sample * 32767);
+                    writer.Write(intSample);
+                }
+            }
+            return stream.ToArray();
+        }
+       
     }
 
     public async UniTask<AudioClip> LoadAudio()
