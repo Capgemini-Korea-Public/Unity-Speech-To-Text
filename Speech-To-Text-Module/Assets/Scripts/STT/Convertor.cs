@@ -23,6 +23,7 @@ public class Convertor : MonoBehaviour
         if (!File.Exists(filePath))
         {
             UnityEngine.Debug.LogWarning("File Not Exist: " + filePath);
+            UIManager.Instance.Warning("File Not Exist");
             return;
         }
 
@@ -30,6 +31,7 @@ public class Convertor : MonoBehaviour
         if (!IsValidAudioFormat(filePath))
         {
             UnityEngine.Debug.LogWarning("Invalid File Extension: " + Path.GetExtension(filePath));
+            UIManager.Instance.Warning("Invalid File Extension");
             return;
         }
 
@@ -194,7 +196,8 @@ public class Convertor : MonoBehaviour
         }
 
         // reduce noise & sample rate 16 & mono
-        string arguments = $"-i \"{filePath}\" -af \"afftdn=nf=-25\" -ar 16000 -ac 1  \"{outputPath}\"";
+        string arguments = $"-i \"{filePath}\" -af \"afftdn=nf=-25\" -ar 16000 -ac 1  \"{outputPath}\"" +
+            $"";
         
 
         if (await ExecuteFFmpegProcess(arguments, outputPath))

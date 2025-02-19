@@ -18,11 +18,12 @@ public class FileSelector : MonoBehaviour
         if (!string.IsNullOrEmpty(filePath))
         {
             STTManager.Instance.SetFilePath(filePath);
-            UIManager.Instance.UpdateFileName(Path.GetFileName(filePath));
+            UIManager.Instance.UpdateFileName(Path.GetFileName(filePath));           
         }
         else
         {
             Debug.LogWarning("Invalid File");
-        }         
+        }
+        UIManager.Instance.UI_Convert.UpdateConvertBtnInteractable();
     }
 }
