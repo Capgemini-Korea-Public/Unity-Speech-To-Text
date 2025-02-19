@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using UnityEngine.Networking;
 using System;
 
@@ -14,7 +14,7 @@ public class Convertor : MonoBehaviour
         ConvertAudioToText();
     }
 
-    private async UniTask ConvertAudioToText()
+    private async Task ConvertAudioToText()
     {
         outputString = "";
         string filePath = STTManager.Instance.FilePath;
@@ -99,7 +99,7 @@ public class Convertor : MonoBehaviour
     #endregion
 
     #region FFmpeg Process
-    private async UniTask<bool> ExecuteFFmpegProcess(string argument, string outputPath)
+    private async Task<bool> ExecuteFFmpegProcess(string argument, string outputPath)
     {
         string ffmpegPath = Path.Combine(Application.dataPath, "Plugins/ffmpeg/bin/ffmpeg.exe");
         // mac os
@@ -126,7 +126,10 @@ public class Convertor : MonoBehaviour
                 process.Start();
                 string errorLog = await process.StandardError.ReadToEndAsync();
 
-                await UniTask.WaitUntil(() => process.HasExited);
+                while (!process.HasExited)
+                {
+                    await Task.Delay(100); 
+                }
 
                 if (!string.IsNullOrEmpty(errorLog))
                 {
@@ -154,7 +157,7 @@ public class Convertor : MonoBehaviour
     #endregion
 
     #region Audio Processing
-    private async UniTask<string> ConvertToWav(string filePath)
+    private async Task<string> ConvertToWav(string filePath)
     {
         UnityEngine.Debug.Log(".wav Converted");
 
@@ -179,7 +182,7 @@ public class Convertor : MonoBehaviour
             return null;
     }
 
-    private async UniTask<string> AudioProcessing(string filePath)
+    private async Task<string> AudioProcessing(string filePath)
     {
         UnityEngine.Debug.Log("Reduce Noise");
 
@@ -206,7 +209,7 @@ public class Convertor : MonoBehaviour
             return null;
     }
 
-    private async UniTask SplitAudio(AudioClip audioClip)
+    private async Task SplitAudio(AudioClip audioClip)
     {        
         float audioLength = audioClip.length;
         float splitDuration = STTManager.Instance.MaximumAudioLength;
@@ -294,7 +297,7 @@ public class Convertor : MonoBehaviour
        
     }
 
-    public async UniTask<AudioClip> LoadAudio()
+    public async Task<AudioClip> LoadAudio()
     {
         string filePath = "file://" + STTManager.Instance.FilePath;
         string fileExtension = Path.GetExtension(filePath).ToLower();
@@ -343,7 +346,7 @@ public class Convertor : MonoBehaviour
     #endregion
 
     #region Convert
-    private async UniTask<string> ConvertByModel(AudioClip audioClip)
+    private async Task<string> ConvertByModel(AudioClip audioClip)
     {
         // Processed Audio Convert to Text
         switch (STTManager.Instance.STTModel)
