@@ -101,11 +101,12 @@ public class Convertor : MonoBehaviour
     #region FFmpeg Process
     private async Task<bool> ExecuteFFmpegProcess(string argument, string outputPath)
     {
-        string ffmpegPath = Path.Combine(Application.dataPath, "Plugins/ffmpeg/bin/ffmpeg.exe");
-        // mac os
+        // Window - Download ffmpeg and locate the ffmpeg.exe file, then place it in the Assets/Plugins folder.
+        string ffmpegPath = Path.Combine(Application.dataPath, "Plugins/ffmpeg.exe");
+        // Mac - Download ffmpeg and locate the folder path where the ffmpeg.dll file is installed, then modify the code below.
         if (Application.platform == RuntimePlatform.OSXEditor || Application.platform == RuntimePlatform.OSXPlayer)
         {
-            ffmpegPath = "/usr/local/bin/ffmpeg";  // Mac
+            ffmpegPath = "/usr/local/bin/ffmpeg";  
         }
 
         // ProcessStartInfo
