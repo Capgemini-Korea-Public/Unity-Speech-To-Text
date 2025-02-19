@@ -2,7 +2,7 @@ using UnityEngine;
 using OpenAI;
 using System.IO;
 using NUnit.Framework;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 
 public class WhisperManager : Singleton<WhisperManager>
 {
@@ -12,7 +12,7 @@ public class WhisperManager : Singleton<WhisperManager>
     private OpenAIApi openAI = new OpenAIApi();
 
     [ContextMenu ("AskWhisper")]
-    public async UniTask<string> AskWhisper(AudioClip audioClip)
+    public async Task<string> AskWhisper(AudioClip audioClip)
     {
         if (STTManager.Instance.IsTranscribing()) return null; // avoid duplicate execution 
         STTManager.Instance.SetTranscribeStatus(true);

@@ -3,7 +3,7 @@ using UnityEngine;
 using Unity.Sentis;
 using System.Text;
 using Unity.Collections;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 
 public class SentisWhisperManager : Singleton<SentisWhisperManager>
 {
@@ -108,7 +108,7 @@ public class SentisWhisperManager : Singleton<SentisWhisperManager>
     #endregion
 
     [ContextMenu("AskSentisWhisper")]
-    public async UniTask<string> AskSentisWhisper(AudioClip audioClip)
+    public async Task<string> AskSentisWhisper(AudioClip audioClip)
     {
         if (STTManager.Instance.IsTranscribing()) return null; // 중복 실행 방지
         DisposeAll();
