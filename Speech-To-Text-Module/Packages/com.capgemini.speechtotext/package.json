@@ -1,0 +1,21 @@
+{
+  "name": "com.capgemini.speechtotext",
+  "displayName": "Speech To Text Module",
+  "version": "1.0.0",
+  "unity": "2023.1",
+  "description": "A Unity package for speech-to-text functionality.",
+  "keywords": [
+    "speech-to-text",
+    "unity"
+  ],
+  "dependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Capgemini-Korea-Public/Unity-Speech-To-Text.git"
+  },
+  "folderStructure": {
+    "Assets/Plugins": "Plugins",
+    "Assets/AudioProcessings": "AudioProcessings"
+  }
+}
