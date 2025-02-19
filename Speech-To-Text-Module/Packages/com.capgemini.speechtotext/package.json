@@ -6,10 +6,12 @@
   "description": "A Unity package for speech-to-text functionality.",
   "keywords": [
     "speech-to-text",
-    "unity"
+    "unity",
+    "stt"
   ],
   "dependencies": {
-    "com.unity.sentis": "2.1.2"
+    "com.unity.sentis": "2.1.2",
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
   },
   "repository": {
     "type": "git",
@@ -24,7 +26,10 @@
     {
       "displayName": "Speech to Text Example",
       "description": "Example scene for Speech to Text functionality.",
-      "path": "Samples/"
+      "path": "Samples~/"
     }
-  ]
+  ],
+  "bugs" :{
+    "email": "wjdwl15951@gmail.com"
+  }
 }
