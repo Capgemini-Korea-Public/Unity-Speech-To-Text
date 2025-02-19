@@ -1,4 +1,3 @@
-using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -16,7 +15,7 @@ public class UIManager : Singleton<UIManager>
 
     public void UpdateFileName(string fileName)
     {
-        TXT_FileName.text = fileName;
+        TXT_FileName.text = fileName;      
     }
 
     public void UpdateOutputText(string convertedText)

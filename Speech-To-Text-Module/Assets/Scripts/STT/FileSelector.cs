@@ -10,6 +10,11 @@ public class FileSelector : MonoBehaviour
         // Title, Directory, File Type 
         string filePath = EditorUtility.OpenFilePanel("Select Audio File", "", "");
 
+        // Init UI
+        STTManager.Instance.Initialize();
+        UIManager.Instance.UpdateFileName(STTManager.Instance.FilePath);
+        UIManager.Instance.UpdateOutputText(STTManager.Instance.ConvertedText);
+
         if (!string.IsNullOrEmpty(filePath))
         {
             STTManager.Instance.SetFilePath(filePath);
@@ -17,7 +22,7 @@ public class FileSelector : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Invalid File");
+            Debug.LogWarning("Invalid File");
         }         
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using UnityEngine.Networking;
+using System;
 
 public class Convertor : MonoBehaviour
 {
@@ -21,14 +22,14 @@ public class Convertor : MonoBehaviour
         // check file exist in given path
         if (!File.Exists(filePath))
         {
-            UnityEngine.Debug.LogError("File Not Exist: " + filePath);
+            UnityEngine.Debug.LogWarning("File Not Exist: " + filePath);
             return;
         }
 
         // check file format is supported by Whisper
         if (!IsValidAudioFormat(filePath))
         {
-            UnityEngine.Debug.LogError("Invalid File Extension: " + Path.GetExtension(filePath));
+            UnityEngine.Debug.LogWarning("Invalid File Extension: " + Path.GetExtension(filePath));
             return;
         }
 
@@ -42,20 +43,20 @@ public class Convertor : MonoBehaviour
             }
             else
             {
-                UnityEngine.Debug.LogError("Fail Convert .mp4 File to .wav");
+                UnityEngine.Debug.LogWarning("Fail Convert .mp4 File to .wav");
                 return;
             }
         }
 
         // Remove Noise, Convert sample rate to 16kHz, Change to mono channel
-        string processedFilePath = await AudioProcessing(filePath);
+        string processedFilePath = await AudioProcessing(STTManager.Instance.FilePath);
         if (processedFilePath != null)
         {
             STTManager.Instance.SetFilePath(processedFilePath);
         }
         else
         {
-            UnityEngine.Debug.LogError("Fail to processing Audio");
+            UnityEngine.Debug.LogWarning("Fail to processing Audio");
         }
 
         AudioClip curAudioInput = await LoadAudio();
@@ -64,19 +65,14 @@ public class Convertor : MonoBehaviour
         if (IsAudioOverMaximumSeconds(curAudioInput))
         {
             UnityEngine.Debug.Log("Audio length over maximum seconds");
-           // List<AudioClip> audioClips = new List<AudioClip>();
             await SplitAudio(curAudioInput);
-
-            //foreach (var audioClip in audioClips)
-            //{
-            //    outputString += await ConvertByModel(audioClip);
-            //}
         }
         else
         {
             outputString += await ConvertByModel(curAudioInput);
         }
 
+        STTManager.Instance.SetConvertedText(outputString);
         UIManager.Instance.UpdateOutputText(outputString);
     }
 
@@ -121,22 +117,35 @@ public class Convertor : MonoBehaviour
             CreateNoWindow = true // Run without creating a window
         };
 
-        Process process = new Process
+        try
         {
-            StartInfo = startInfo
-        };
+            using (Process process = new Process { StartInfo = startInfo })
+            {
+                process.Start();
+                string errorLog = await process.StandardError.ReadToEndAsync();
 
-        process.Start();
-        process.WaitForExit(); 
+                await UniTask.WaitUntil(() => process.HasExited);
 
-        if (File.Exists(outputPath))
-        {
-            UnityEngine.Debug.Log($"Execute Success: {outputPath}");
-            return true;
+                if (!string.IsNullOrEmpty(errorLog))
+                {
+                    // UnityEngine.Debug.LogWarning($"FFmpeg Error: {errorLog}");
+                }
+
+                if (File.Exists(outputPath))
+                {
+                    UnityEngine.Debug.Log($"Execute Success: {outputPath}");
+                    return true;
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning($"Execute Failed: {outputPath} file not found in this path");
+                    return false;
+                }
+            }
         }
-        else
+        catch (Exception ex)
         {
-            UnityEngine.Debug.LogError("Execute Failed");
+            UnityEngine.Debug.LogError($"FFmpeg Execution Failed: {ex.Message}\n{ex.StackTrace}");
             return false;
         }
     }
@@ -204,7 +213,9 @@ public class Convertor : MonoBehaviour
         while (curTime < audioLength)
         {
             float endTime = Mathf.Min(curTime + splitDuration, audioLength);
-            outputString += await ConvertByModel(CutAudioClip(audioClip, curTime, endTime, index)); 
+            AudioClip splitAudio = CutAudioClip(audioClip, curTime, endTime, index);
+            if (splitAudio != null && splitAudio.length  >= 0.1f) // if split audio is too short or split process has error, splitAudio return null
+                outputString += await ConvertByModel(splitAudio);
             curTime = endTime;
             index++;
         }
@@ -216,7 +227,7 @@ public class Convertor : MonoBehaviour
         int endSample = Mathf.FloorToInt(endTime * clip.frequency);
 
         int newClipLength = Mathf.Min(endSample - startSample, clip.samples - startSample);
-        if (newClipLength <= 0) return null;
+        if (newClipLength <= 1) return null;
 
         float[] samples = new float[newClipLength * clip.channels];
         clip.GetData(samples, startSample);
@@ -288,7 +299,7 @@ public class Convertor : MonoBehaviour
         AudioType audioType = GetAudioType(fileExtension);
         if (audioType == AudioType.UNKNOWN)
         {
-            UnityEngine.Debug.LogError("Unsupported AudioType: " + fileExtension);
+            UnityEngine.Debug.LogWarning("Unsupported AudioType: " + fileExtension);
             return null;
         }
 
@@ -305,7 +316,7 @@ public class Convertor : MonoBehaviour
             }
             else
             {
-                UnityEngine.Debug.LogError("Failed Audio Load: " + www.error);
+                UnityEngine.Debug.LogWarning("Failed Audio Load: " + www.error);
                 return null;
             }
         }
