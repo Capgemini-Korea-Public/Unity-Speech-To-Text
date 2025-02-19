@@ -9,6 +9,7 @@
     "unity"
   ],
   "dependencies": {
+    "com.unity.sentis": "2.1.2"
   },
   "repository": {
     "type": "git",
@@ -16,6 +17,14 @@
   },
   "folderStructure": {
     "Assets/Plugins": "Plugins",
-    "Assets/AudioProcessings": "AudioProcessings"
-  }
+    "Assets/AudioProcessings": "AudioProcessings",
+    "Assets/Fonts": "Fonts"
+  },
+  "samples": [
+    {
+      "displayName": "Speech to Text Example",
+      "description": "Example scene for Speech to Text functionality.",
+      "path": "Samples/"
+    }
+  ]
 }
