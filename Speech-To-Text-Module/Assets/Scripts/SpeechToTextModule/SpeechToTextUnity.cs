@@ -11,6 +11,12 @@ using System;
 
 namespace SpeechToTextUnity
 {
+    public enum ESTTModelType
+    {
+        SentisWhisper,
+        OpenAIWhisper,
+    }
+
     public static class SpeechToTextUnityModule
     {
         private static bool isTranscribe = false;

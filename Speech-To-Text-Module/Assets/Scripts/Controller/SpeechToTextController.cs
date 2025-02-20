@@ -5,6 +5,9 @@ using SpeechToTextUnity;
 
 public class SpeechToTextController : MonoBehaviour
 {
+    private static SpeechToTextController instance;
+    public static SpeechToTextController Instance => instance;
+
     [field: Header("Selected Model")]
     [field: SerializeField] public ESTTModelType STTModelType { get; private set; }
 
@@ -14,7 +17,23 @@ public class SpeechToTextController : MonoBehaviour
     [field: SerializeField] public string ConvertedText { get; private set; }
 
     [field: Header("Set Audio Maximum Length")]
-    [field: SerializeField, Range(10f, 30)] public int MaximumAudioLength = 20;
+    [field: SerializeField, Range(10f, 30)] public int MaximumAudioLength = 25;
+
+    public event Action<string> OnFileSelected;
+    public event Action OnConvertBtnClicked;
+    public event Action<string> OnOutputTextChanged;
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {
@@ -31,11 +50,14 @@ public class SpeechToTextController : MonoBehaviour
     public void FileSelect()
     {
         FilePath = FileSelector.FileSelect();
+        OnFileSelected?.Invoke(FilePath);
     }
 
     public async void Convert()
     {
+        OnConvertBtnClicked?.Invoke();
         ConvertedText = await AudioConvertor.ConvertAudioToText(FilePath, STTModelType, MaximumAudioLength);
+        OnOutputTextChanged?.Invoke(ConvertedText);
     }
 
     private void InitFolder(string folderName)
