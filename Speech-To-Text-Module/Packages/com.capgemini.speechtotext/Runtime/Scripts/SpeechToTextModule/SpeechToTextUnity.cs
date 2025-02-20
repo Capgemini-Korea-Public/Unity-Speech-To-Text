@@ -43,7 +43,7 @@ namespace SpeechToTextUnity
 
             Debug.Log(res);
 
-            AudioConvertor.RemoveProcessedAudioFile();
+            ExtensionMethods.RemoveProcessedAudioFile();
             return res.Text;
         }
         #endregion
@@ -121,7 +121,7 @@ namespace SpeechToTextUnity
             {
                 if (!isTranscribe || tokenCount >= (outputTokens.Length - 1))
                 {
-                    AudioConvertor.RemoveProcessedAudioFile();
+                    ExtensionMethods.RemoveProcessedAudioFile();
                     return stringBuilder.ToString();
                 }
                 m_Awaitable = InferenceStep(outputString);
