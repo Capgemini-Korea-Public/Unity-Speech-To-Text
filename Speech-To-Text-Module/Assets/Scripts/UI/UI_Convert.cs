@@ -7,6 +7,6 @@ public class UI_Convert : MonoBehaviour
 
     public void UpdateConvertBtnInteractable()
     {
-        btn_Convert.interactable = true ? STTManager.Instance.FilePath != "" : false;
+        //btn_Convert.interactable = true ? SpeechToTextController.Instance.FilePath != "" : false;
     }
 }

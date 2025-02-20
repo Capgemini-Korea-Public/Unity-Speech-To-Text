@@ -1,4 +1,4 @@
-public enum ESTTType
+public enum ESTTModelType
 {
     SentisWhisper,
     OpenAIWhisper,

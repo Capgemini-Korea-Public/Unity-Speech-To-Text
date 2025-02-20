@@ -391,50 +391,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7750268}
   m_CullTransparentMesh: 1
---- !u!1 &13079656
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 13079657}
-  - component: {fileID: 13079658}
-  m_Layer: 0
-  m_Name: Convertor
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &13079657
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 13079656}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 916773727}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &13079658
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 13079656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5a389ad09025a14dab3f91968b4be49, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &29654192
 GameObject:
   m_ObjectHideFlags: 0
@@ -1663,13 +1619,13 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 506878321}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 13079658}
-        m_TargetAssemblyTypeName: Convertor, Assembly-CSharp
+      - m_Target: {fileID: 916773728}
+        m_TargetAssemblyTypeName: SpeechToTextController, Assembly-CSharp
         m_MethodName: Convert
         m_Mode: 1
         m_Arguments:
@@ -1743,57 +1699,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   btn_Convert: {fileID: 506878320}
---- !u!1 &511176654
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 511176655}
-  - component: {fileID: 511176656}
-  m_Layer: 0
-  m_Name: SentisWhisperManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &511176655
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 511176654}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &511176656
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 511176654}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 022a1203c99cc4245b41ab8e7914210e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  audioDecoder1: {fileID: 5022602860645237092, guid: 7ba6a6f1732f99947a01515050933e17, type: 3}
-  audioDecoder2: {fileID: 5022602860645237092, guid: 624abb45917446244aafc68d8666884d, type: 3}
-  audioEncoder: {fileID: 5022602860645237092, guid: 3e61d0582ab3055458aa9259802beba7, type: 3}
-  logMelSpectro: {fileID: 5022602860645237092, guid: bb98b320c7e1fc0479990e828c462595, type: 3}
-  audioClip: {fileID: 0}
-  jsonFile: {fileID: 4900000, guid: c551cd9b2aa8ea042a41bdb6f0bd1d19, type: 3}
-  outputString: 
 --- !u!1 &687051068
 GameObject:
   m_ObjectHideFlags: 0
@@ -2333,7 +2238,7 @@ GameObject:
   - component: {fileID: 916773727}
   - component: {fileID: 916773728}
   m_Layer: 0
-  m_Name: STTManager
+  m_Name: SpeechToTextController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2351,9 +2256,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 13079657}
-  - {fileID: 980858945}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &916773728
@@ -2370,7 +2273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <FilePath>k__BackingField: 
   <ConvertedText>k__BackingField: 
-  <STTModel>k__BackingField: 1
+  <STTModelType>k__BackingField: 0
   MaximumAudioLength: 25
   IsTranscribe: 0
 --- !u!1 &948502905
@@ -2481,50 +2384,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948502905}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &980858944
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 980858945}
-  - component: {fileID: 980858946}
-  m_Layer: 0
-  m_Name: FileSelector
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &980858945
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 980858944}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 916773727}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &980858946
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 980858944}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc047269484f8674c8ee0c82686a7342, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1079350238
 GameObject:
   m_ObjectHideFlags: 0
@@ -3442,51 +3301,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1641942847}
   m_CullTransparentMesh: 1
---- !u!1 &1834533223
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1834533224}
-  - component: {fileID: 1834533225}
-  m_Layer: 0
-  m_Name: WhisperManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1834533224
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1834533223}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1834533225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1834533223}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e8a3321c1cbcff84ca469958cf0de665, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outputString: 
 --- !u!1 &1863479409
 GameObject:
   m_ObjectHideFlags: 0
@@ -3646,8 +3460,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 980858946}
-        m_TargetAssemblyTypeName: FileSelector, Assembly-CSharp
+      - m_Target: {fileID: 916773728}
+        m_TargetAssemblyTypeName: SpeechToTextController, Assembly-CSharp
         m_MethodName: FileSelect
         m_Mode: 1
         m_Arguments:
@@ -3842,7 +3656,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2009962376}
   m_Layer: 0
-  m_Name: '======[Manager]====== '
+  m_Name: '======[Controller]====== '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3863,55 +3677,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2049805784
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2049805785}
-  - component: {fileID: 2049805786}
-  m_Layer: 0
-  m_Name: UIManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2049805785
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2049805784}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2049805786
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2049805784}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77c5968765b3efa49be55691d3518a51, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  <UI_Convert>k__BackingField: {fileID: 506878323}
-  TXT_ModelName: {fileID: 1564578422}
-  TXT_FileName: {fileID: 1641942849}
-  TXT_Output: {fileID: 1449930773}
-  TXT_Warning: {fileID: 803613}
 --- !u!1 &2113426135
 GameObject:
   m_ObjectHideFlags: 0
@@ -4063,6 +3828,3 @@ SceneRoots:
   - {fileID: 304323474}
   - {fileID: 2009962376}
   - {fileID: 916773727}
-  - {fileID: 1834533224}
-  - {fileID: 511176655}
-  - {fileID: 2049805785}
