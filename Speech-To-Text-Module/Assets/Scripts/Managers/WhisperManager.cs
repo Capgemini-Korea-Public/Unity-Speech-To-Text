@@ -17,7 +17,7 @@ public class WhisperManager : Singleton<WhisperManager>
         if (STTManager.Instance.IsTranscribing()) return null; // avoid duplicate execution 
         STTManager.Instance.SetTranscribeStatus(true);
 
-        string filePath = Path.Combine(Application.dataPath, "AudioProcessings", audioClip.name);
+        string filePath = Path.Combine(Application.dataPath, STTManager.Instance.AudioProcessings, audioClip.name);
         var req = new CreateAudioTranscriptionsRequest
         {
             File = filePath,

@@ -162,7 +162,7 @@ public class Convertor : MonoBehaviour
     {
         UnityEngine.Debug.Log(".wav Converted");
 
-        string directoryPath = Path.Combine(Application.dataPath, "AudioProcessings");
+        string directoryPath = Path.Combine(Application.dataPath, STTManager.Instance.AudioProcessings);
         string baseFileName = Path.GetFileNameWithoutExtension(filePath);
         string outputPath = Path.Combine(directoryPath, baseFileName + ".wav");
 
@@ -187,7 +187,7 @@ public class Convertor : MonoBehaviour
     {
         UnityEngine.Debug.Log("Reduce Noise");
 
-        string directoryPath = Path.Combine(Application.dataPath, "AudioProcessings");
+        string directoryPath = Path.Combine(Application.dataPath, STTManager.Instance.AudioProcessings);
         string baseFileName = Path.GetFileNameWithoutExtension(filePath);
         string outputPath = Path.Combine(directoryPath, baseFileName + Path.GetExtension(filePath));
 
@@ -244,7 +244,7 @@ public class Convertor : MonoBehaviour
 
         UnityEngine.Debug.Log($"New Clip: {startTime} ~ {endTime}, Length: {newClip.length}, Name: {newClip.name} ");
 
-        string outputPath = Path.Combine(Application.dataPath, "AudioProcessings", newClip.name);
+        string outputPath = Path.Combine(Application.dataPath, STTManager.Instance.AudioProcessings, newClip.name);
         SaveAudioClip(newClip, outputPath);
 
         return newClip;

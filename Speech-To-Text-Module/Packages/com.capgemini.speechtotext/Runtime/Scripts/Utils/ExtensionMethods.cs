@@ -18,6 +18,7 @@ public static class ExtensionMethods
         {
             foreach (string file in Directory.GetFiles(folderPath))
             {
+                if (Path.GetFileNameWithoutExtension(file) == "FolderDesc") { continue; }
                 File.Delete(file);
             }
             Debug.Log("All files in 'AudioProcessings' have been deleted.");

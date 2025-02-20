@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 
 public class STTManager : Singleton<STTManager>
@@ -14,7 +15,29 @@ public class STTManager : Singleton<STTManager>
 
     [field: SerializeField] public bool IsTranscribe = false;
 
-    public void Initialize()
+    public readonly string AudioProcessings = "AudioProcessings";
+    public readonly string Plugins = "Plugins";
+
+    private void Start()
+    {
+        InitFolder(AudioProcessings);
+        InitFolder(Plugins);
+    }
+
+    private void InitFolder(string folderName)
+    {
+        string folderPath = Application.dataPath + $"/{folderName}";
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+        else
+        {
+            Debug.Log("Folder Already Exist in " + folderPath);
+        }
+    }
+
+    public void Reset()
     {
         SetConvertedText("");
         SetFilePath("");

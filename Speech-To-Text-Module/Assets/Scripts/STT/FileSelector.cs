@@ -10,8 +10,8 @@ public class FileSelector : MonoBehaviour
         // Title, Directory, File Type 
         string filePath = EditorUtility.OpenFilePanel("Select Audio File", "", "");
 
-        // Init UI
-        STTManager.Instance.Initialize();
+        // InitFolder UI
+        STTManager.Instance.Reset();
         UIManager.Instance.UpdateFileName(STTManager.Instance.FilePath);
         UIManager.Instance.UpdateOutputText(STTManager.Instance.ConvertedText);
 
