@@ -353,5 +353,23 @@ namespace SpeechToTextUnity
                     return null;
             }
         }
+
+        public static void RemoveProcessedAudioFile()
+        {
+            string folderPath = Path.Combine(Application.dataPath, AudioConvertor.AudioProcessingString);
+
+            if (Directory.Exists(folderPath))
+            {
+                foreach (string file in Directory.GetFiles(folderPath))
+                {
+                    File.Delete(file);
+                }
+                UnityEngine.Debug.Log("All files in 'AudioProcessings' have been deleted.");
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning("'AudioProcessings' folder does not exist.");
+            }
+        }
     }
 }
