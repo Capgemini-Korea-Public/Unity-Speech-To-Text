@@ -76,3 +76,5 @@ crashlytics-build.properties
 
 */[Aa]ssets/[Pp]lugins/*
 */[Aa]ssets/[Rr]esources/*
+
+*[Ss]peech-To-Text-Module/
