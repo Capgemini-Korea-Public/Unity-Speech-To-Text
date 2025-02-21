@@ -97,7 +97,7 @@ This package uses FFmpeg to process audio files, so you must install FFmpeg on y
     }
     ```
 
-Ensure the specified path (/usr/local/bin/ffmpeg) matches the actual installation location of FFmpeg on your Mac.
+Ensure the specified path matches the actual installation location of FFmpeg on your Mac.
 
 
 ## Samples 
