@@ -73,8 +73,6 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 */[Aa]ssets/[Aa]udioProcessings/*
-!*/[Aa]ssets/[Aa]udioProcessings/[Ff]olderDesc.txt
-!*/[Aa]ssets/[Aa]udioProcessings/[Ff]olderDesc.txt.meta
 
 */[Aa]ssets/[Pp]lugins/*
 */[Aa]ssets/[Rr]esources/*
