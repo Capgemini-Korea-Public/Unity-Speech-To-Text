@@ -97,4 +97,29 @@ This package uses FFmpeg to process audio files, so you must install FFmpeg on y
     }
     ```
 
-    Ensure the specified path (/usr/local/bin/ffmpeg) matches the actual installation location of FFmpeg on your Mac.
+Ensure the specified path (/usr/local/bin/ffmpeg) matches the actual installation location of FFmpeg on your Mac.
+
+
+## Samples 
+
+By downloading the package sample, you can check how the **SpeechToTextUnity** package is used by looking at the provided **DemoScene** and **SpeechToTextController.cs** script.
+
+## Features of SpeechToTextUnity
+
+### 1. File Selector
+- The `FileSelect()` method allows you to obtain the path of an audio file selected by the user.
+- This method is typically linked to a file selection button for user interaction.
+
+### 2. AudioConvertor
+- The `ConvertAudioToText()` method converts an audio file into text.
+- **Parameters:**
+  - **Audio file path**: The path of the audio file to be converted.
+  - **Model type**: The type of model to use (**OpenAI API, Sentis**). This is defined in the package as `ESTTModelType` enum.
+  - **Max audio length**: Defines the duration in seconds for how the audio will be split and converted.
+- This method is typically linked to a conversion start button for user interaction.
+
+### 3. SpeechToTextUnityModule
+- This script manages the operation of the **OpenAI API** and **Sentis** models.
+- The following methods process the conversion using an audio clip as a parameter:
+  - `SpeechToTextFromAPI()`
+  - `SpeechToTextFromSentis()`
