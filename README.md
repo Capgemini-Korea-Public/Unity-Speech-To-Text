@@ -12,7 +12,7 @@ This package provides two methods for converting audio to text:
 
 To import this package, follow these steps:
 
-1. Open Unity 2019 or later
+1. Open Unity 2021.3 or later
 2. In Unity, go to **Window > Package Manager**.
 3. Click the **`+`** button and select **Add package from git URL**.
 4. Paste the following repository URL https://github.com/Capgemini-Korea-Public/Unity-Speech-To-Text.git and click **Add**
