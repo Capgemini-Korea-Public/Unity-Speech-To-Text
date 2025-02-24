@@ -6,7 +6,9 @@
   "unity": "2021.3",
   "hideInEditor": false,
   "author": {
-    "name": "capgemini_korea"
+    "name": "capgemini_korea",
+    "email": "wjdwl15951@gmail.com",
+    "url": "https://github.com/Capgemini-Korea-Public"
   },
   "keywords": [
     "speech-to-text",
