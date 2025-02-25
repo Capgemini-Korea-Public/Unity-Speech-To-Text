@@ -16,6 +16,7 @@ To import this package, follow these steps:
 2. In Unity, go to **Window > Package Manager**.
 3. Click the **`+`** button and select **Add package from git URL**.
 4. Paste the following repository URL https://github.com/Capgemini-Korea-Public/Unity-Speech-To-Text.git and click **Add**
+5. Paste the following repository URL https://github.com/srcnalt/OpenAI-Unity.git and click **Add**
 
 
 And then, follow the steps below to set up **Sentis**, **OpenAI API**, and **FFmpeg** for the Unity Speech-to-Text module.
