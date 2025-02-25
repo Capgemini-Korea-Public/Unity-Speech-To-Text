@@ -5,17 +5,20 @@ using System.Threading.Tasks;
 using UnityEngine.Networking;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 
 namespace SpeechToTextUnity
 {
-    public static class AudioConvertor {
+    public static class AudioConvertor
+    {
         public const string AudioProcessingString = "AudioProcessings";
         public const string PluginString = "Plugins";
         private static readonly HashSet<string> whisperExtensions = new HashSet<string> { ".mp3", ".mp4", ".wav", ".ogg", ".mpeg" }; // whisper support extension , ".m4a",  ".mpga", ".webm", ".flac", ".oga" <= not supported in AudioType 
 
         public static async Task<string> ConvertAudioToText(string filePath, ESTTModelType modelType, int maxConvertedAudioLength)
         {
+            float curTime = Time.time;
             string outputString = "";
 
             // check file exist in given path
@@ -74,6 +77,7 @@ namespace SpeechToTextUnity
                 outputString = await ConvertByModel(modelType, curAudioInput);
             }
 
+            UnityEngine.Debug.Log($"Speech To Text Module Duration : {Time.time - curTime}");
             return outputString;
         }
 
@@ -183,20 +187,17 @@ namespace SpeechToTextUnity
 
             string directoryPath = Path.Combine(Application.dataPath, AudioProcessingString);
             string baseFileName = Path.GetFileNameWithoutExtension(filePath);
+            string extension = Path.GetExtension(filePath);
             string outputPath = Path.Combine(directoryPath, baseFileName + Path.GetExtension(filePath));
 
             int count = 1;
             while (File.Exists(outputPath))
             {
-                string newFileName = baseFileName + count.ToString();
-                outputPath = Path.Combine(directoryPath, newFileName + Path.GetExtension(filePath));
-                count++;
+                outputPath = Path.Combine(directoryPath, $"{baseFileName}{count++}{extension}");
             }
 
             // reduce noise & sample rate 16 & mono
-            string arguments = $"-i \"{filePath}\" -af \"afftdn=nf=-25\" -ar 16000 -ac 1  \"{outputPath}\"" +
-                $"";
-
+            string arguments = $"-i \"{filePath}\" -af \"afftdn=nf=-25\" -ar 16000 -ac 1  \"{outputPath}\"";
 
             if (await ExecuteFFmpegProcess(arguments, outputPath))
                 return outputPath;
@@ -209,18 +210,25 @@ namespace SpeechToTextUnity
             float audioLength = audioClip.length;
             float splitDuration = maxConvertedAudioLength;
             float curTime = 0f;
-            string splitAudioOutputString = outputString;
+            StringBuilder splitAudioOutput = new StringBuilder(outputString);
+            List<Task<string>> conversionTasks = new List<Task<string>>();
 
             while (curTime < audioLength)
             {
                 float endTime = Mathf.Min(curTime + splitDuration, audioLength);
                 AudioClip splitAudio = CutAudioClip(audioClip, curTime, endTime);
+
                 if (splitAudio != null && splitAudio.length >= 0.1f) // if split audio is too short or split process has error, splitAudio return null
-                    splitAudioOutputString += await ConvertByModel(modelType, splitAudio);
+                    conversionTasks.Add(ConvertByModel(modelType, splitAudio));
                 curTime = endTime;
             }
 
-            return splitAudioOutputString;
+            string[] results = await Task.WhenAll(conversionTasks);
+            foreach (var result in results)
+            {
+                splitAudioOutput.Append(result);
+            }
+            return splitAudioOutput.ToString();
         }
 
         private static AudioClip CutAudioClip(AudioClip clip, float startTime, float endTime)
@@ -356,7 +364,7 @@ namespace SpeechToTextUnity
 
         public static void RemoveProcessedAudioFile()
         {
-            string folderPath = Path.Combine(Application.dataPath, AudioConvertor.AudioProcessingString);
+            string folderPath = Path.Combine(Application.dataPath, AudioProcessingString);
 
             if (Directory.Exists(folderPath))
             {
