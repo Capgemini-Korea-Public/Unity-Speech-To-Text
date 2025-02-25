@@ -210,25 +210,18 @@ namespace SpeechToTextUnity
             float audioLength = audioClip.length;
             float splitDuration = maxConvertedAudioLength;
             float curTime = 0f;
-            StringBuilder splitAudioOutput = new StringBuilder(outputString);
-            List<Task<string>> conversionTasks = new List<Task<string>>();
+            string splitAudioOutputString = outputString;
 
             while (curTime < audioLength)
             {
                 float endTime = Mathf.Min(curTime + splitDuration, audioLength);
                 AudioClip splitAudio = CutAudioClip(audioClip, curTime, endTime);
-
                 if (splitAudio != null && splitAudio.length >= 0.1f) // if split audio is too short or split process has error, splitAudio return null
-                    conversionTasks.Add(ConvertByModel(modelType, splitAudio));
+                    splitAudioOutputString += await ConvertByModel(modelType, splitAudio);
                 curTime = endTime;
             }
 
-            string[] results = await Task.WhenAll(conversionTasks);
-            foreach (var result in results)
-            {
-                splitAudioOutput.Append(result);
-            }
-            return splitAudioOutput.ToString();
+            return splitAudioOutputString;
         }
 
         private static AudioClip CutAudioClip(AudioClip clip, float startTime, float endTime)
