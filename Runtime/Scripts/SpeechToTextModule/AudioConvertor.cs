@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using UnityEngine.Networking;
 using System;
 using System.Collections.Generic;
-using System.Text;
-
 
 namespace SpeechToTextUnity
 {
@@ -14,12 +12,17 @@ namespace SpeechToTextUnity
     {
         public const string AudioProcessingString = "AudioProcessings";
         public const string PluginString = "Plugins";
+        public const string ResourceString = "Resources";
         private static readonly HashSet<string> whisperExtensions = new HashSet<string> { ".mp3", ".mp4", ".wav", ".ogg", ".mpeg" }; // whisper support extension , ".m4a",  ".mpga", ".webm", ".flac", ".oga" <= not supported in AudioType 
 
         public static async Task<string> ConvertAudioToText(string filePath, ESTTModelType modelType, int maxConvertedAudioLength)
         {
             float curTime = Time.time;
             string outputString = "";
+
+            InitFolder(AudioProcessingString);
+            InitFolder(ResourceString);
+            InitFolder(PluginString);
 
             // check file exist in given path
             if (!File.Exists(filePath))
@@ -370,6 +373,15 @@ namespace SpeechToTextUnity
             else
             {
                 UnityEngine.Debug.LogWarning("'AudioProcessings' folder does not exist.");
+            }
+        }
+
+        private static void InitFolder(string folderName)
+        {
+            string folderPath = Application.dataPath + $"/{folderName}";
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
             }
         }
     }

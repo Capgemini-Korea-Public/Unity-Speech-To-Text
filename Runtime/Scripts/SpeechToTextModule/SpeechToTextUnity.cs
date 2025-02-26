@@ -52,7 +52,7 @@ namespace SpeechToTextUnity
         private static ModelAsset audioDecoder1;
         private static ModelAsset audioDecoder2;
         private static ModelAsset audioEncoder;
-        private static ModelAsset logMelSpectro; 
+        private static ModelAsset logMelSpectro;
 
         private static AudioClip _audioClip;
         private static TextAsset vocab;
@@ -87,10 +87,18 @@ namespace SpeechToTextUnity
 
         // 오디오 최대 사이즈 지정 (30초 at 16kHz)
         private const int maxSamples = 30 * 16000;
+        private static bool isFirst = true;
 
         public static async Task<string> SpeechToTextFromSentis(AudioClip audioClip)
         {
             if (isTranscribe) return null; // 중복 실행 방지
+
+            if (isFirst)
+            {
+                InitializeSentisModel();
+                isFirst = false;
+            }
+
             DisposeAll();
             isTranscribe = true;
 
@@ -142,6 +150,8 @@ namespace SpeechToTextUnity
                     logMelSpectro = Resources.Load<ModelAsset>("logmel_spectrogram");
                     vocab = Resources.Load<TextAsset>("vocab");
                 }
+                else
+                    return;
             }
             catch (Exception ex)
             {
@@ -195,7 +205,7 @@ namespace SpeechToTextUnity
             numSamples = _audioClip.samples;
             var data = new float[maxSamples];
             numSamples = maxSamples;
-            _audioClip.GetData(data, 0); 
+            _audioClip.GetData(data, 0);
             audioInput = new Tensor<float>(new TensorShape(1, numSamples), data);
         }
 
@@ -334,4 +344,3 @@ namespace SpeechToTextUnity
         #endregion
     }
 }
-

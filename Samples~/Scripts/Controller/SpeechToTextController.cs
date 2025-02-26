@@ -35,14 +35,6 @@ public class SpeechToTextController : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        SpeechToTextUnityModule.InitializeSentisModel();
-        InitFolder("AudioProcessings");
-        InitFolder("Resources");
-        InitFolder("Plugins");
-    }
-
     private void OnDestroy()
     {
         SpeechToTextUnityModule.OnDestroy();
@@ -59,15 +51,6 @@ public class SpeechToTextController : MonoBehaviour
         OnConvertBtnClicked?.Invoke();
         ConvertedText = await AudioConvertor.ConvertAudioToText(FilePath, STTModelType, MaximumAudioLength);
         OnOutputTextChanged?.Invoke(ConvertedText);
-    }
-
-    private void InitFolder(string folderName)
-    {
-        string folderPath = Application.dataPath + $"/{folderName}";
-        if (!Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
     }
 
     public void Reset()
